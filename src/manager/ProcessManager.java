@@ -79,7 +79,7 @@ public class ProcessManager {
 			case "exit":
 				this.getMasterNode().disconnect();
 			case "launch":
-				this.getMasterNode().
+				this.getMasterNode();
 		}
 	}
 	
