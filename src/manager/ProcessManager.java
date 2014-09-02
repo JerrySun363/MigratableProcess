@@ -64,7 +64,9 @@ public class ProcessManager {
 		this.printUsageMessage();
 		while (true) {
 			input = scanner.nextLine();
+			handleCommand(input);
 		}
+		
 		
 	}
 	
@@ -79,5 +81,6 @@ public class ProcessManager {
 		System.out.println("-launch <ProcessName>");
 		System.out.println("-migrate <pid>");
 		System.out.println("-remove <pid>");
+		System.out.println("exit");
 	}
 }
