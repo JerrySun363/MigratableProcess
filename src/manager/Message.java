@@ -14,7 +14,7 @@ public class Message {
 	private int slaveId;
 	private String type;
 	private MigratableProcess process;
-	
+	private boolean isSuccess;
 	
 	public Message (int PID, String type, int slaveId) {
 		this.pid = PID;
@@ -60,6 +60,22 @@ public class Message {
 
 	public void setProcess(MigratableProcess process) {
 		this.process = process;
+	}
+
+
+	/**
+	 * @return the isSuccess
+	 */
+	public boolean isSuccess() {
+		return isSuccess;
+	}
+
+
+	/**
+	 * @param isSuccess the isSuccess to set
+	 */
+	public void setSuccess(boolean isSuccess) {
+		this.isSuccess = isSuccess;
 	}
 
 }
