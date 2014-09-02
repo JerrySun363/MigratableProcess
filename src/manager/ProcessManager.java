@@ -18,16 +18,4 @@ public class ProcessManager {
 		return null;
 	}
 	
-	
-	public void disconnect() {
-		
-		List<Socket> socketList = null;
-		for (Socket slaveSocket : socketList) {
-			try {
-				slaveSocket.close();
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-		}
-	}
 }

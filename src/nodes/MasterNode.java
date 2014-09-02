@@ -6,6 +6,7 @@ package nodes;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 import manager.MigratableProcess;
 import manager.ProcessManager;
@@ -32,9 +33,30 @@ public class MasterNode implements Runnable{
 		}
 	}
 	
-	private int launchProcess(MigratableProcess process) {
+	public int launchProcess(MigratableProcess process) {
 		return 0;
 	}
+	
+    public void disconnect() {
+		
+		List<Socket> socketList = null;
+		for (Socket slaveSocket : socketList) {
+			try {
+				slaveSocket.close();
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+		}
+	}
+    
+    public void migrate() {
+    	
+    }  
+    
+    public void remove() {
+    	
+    }
+	
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
