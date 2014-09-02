@@ -3,10 +3,6 @@
  */
 package manager;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.net.Socket;
-import java.util.List;
 import java.util.Scanner;
 
 import nodes.MasterNode;
@@ -23,15 +19,19 @@ import nodes.MasterNode;
  */
 public class ProcessManager {
 	private MasterNode masterNode;
+	Scanner scanner;
 
 	public ProcessManager() {
 		this.setMasterNode(new MasterNode());
 		this.getMasterNode().run();
+		this.scanner = new Scanner(System.in);
 	}
 
 	public ProcessManager(int portNum) {
 		this.setMasterNode(new MasterNode(portNum));
 		this.getMasterNode().run();
+		this.scanner = new Scanner(System.in);
+		
 	}
 
 	public static void main(String args[]) {
@@ -59,7 +59,6 @@ public class ProcessManager {
 	}
 
 	public void acceptCommand() {
-		Scanner scanner = new Scanner(System.in);
 		String input = "";
 		this.printUsageMessage();
 		while (true) {
@@ -74,13 +73,21 @@ public class ProcessManager {
 		if(input == null || input.trim().isEmpty()){
 			this.printUsageMessage();
 		}
+		
+		String[] args = input.split("\\w");
+		switch (args[0]){
+			case "exit":
+				this.getMasterNode().disconnect();
+			case "launch":
+				this.getMasterNode().
+		}
 	}
 	
 	private void printUsageMessage(){
 		System.out.println("Usage:");
-		System.out.println("-launch <ProcessName>");
-		System.out.println("-migrate <pid>");
-		System.out.println("-remove <pid>");
+		System.out.println("launch <ProcessName>");
+		System.out.println("migrate <pid>");
+		System.out.println("remove <pid>");
 		System.out.println("exit");
 	}
 }

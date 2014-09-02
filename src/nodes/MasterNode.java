@@ -59,5 +59,10 @@ public class MasterNode implements Runnable{
 			//TODO
 		}
 	}
+
+	public void disconnect() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }
