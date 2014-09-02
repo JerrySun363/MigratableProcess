@@ -17,6 +17,10 @@ import java.lang.InterruptedException;
 
 public class GrepProcess implements MigratableProcess
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8308005755247149213L;
 	private TransactionalFileInputStream  inFile;
 	private TransactionalFileOutputStream outFile;
 	private String query;
@@ -80,6 +84,12 @@ public class GrepProcess implements MigratableProcess
 	public String toSring() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void resume() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
