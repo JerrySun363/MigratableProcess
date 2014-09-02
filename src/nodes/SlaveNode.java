@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 
 import manager.Message;
 
@@ -29,7 +29,7 @@ public class SlaveNode {
 	private String masterHost;
 	private int masterPort;
 	
-	private volatile LinkedList<Integer> runningPIDs;
+	private volatile HashSet<Integer> runningPIDs;
 	private HashMap<Integer, MigratableProcess> PIDProcessMap;
 	private HashMap<Integer, Thread> PIDThreadMap;
 	
@@ -37,6 +37,21 @@ public class SlaveNode {
 	public SlaveNode(String mHost, int mPort) {
 		this.masterHost = mHost;
 		this.masterPort = mPort;	
+		
+		this.isRun = true;
+		
+		this.runningPIDs = new HashSet<Integer>();
+		this.PIDProcessMap = new HashMap<Integer, MigratableProcess>();
+		this.PIDThreadMap = new HashMap<Integer, Thread>();
+		
+		try {
+			this.socket = new Socket(masterHost, masterPort);
+			this.objectIn = new ObjectInputStream(this.socket.getInputStream());
+			this.objectOut = new ObjectOutputStream(this.socket.getOutputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -60,20 +75,6 @@ public class SlaveNode {
 			int masterPort = Integer.valueOf(argv[2]);
 			
 			SlaveNode slaveNode = new SlaveNode(masterHost, masterPort);
-			slaveNode.isRun = true;
-			
-			try {
-				slaveNode.socket = new Socket(masterHost, masterPort);
-				
-				slaveNode.objectIn = new ObjectInputStream(slaveNode.socket.getInputStream());
-				
-				//BufferedReader output = new BufferedReader(new Reader(slaveNode.socket.getOutputStream()));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		
 			
 			while (slaveNode.isRun) {
 				
@@ -94,7 +95,7 @@ public class SlaveNode {
 					e.printStackTrace();
 				}	
 				
-				
+				slaveNode.excuteJob(message);
 			}	
 		}
 	}
@@ -104,23 +105,37 @@ public class SlaveNode {
 	 */
 	private void excuteJob(Message message) {
 		switch (message.getType()) {
+		
 		case "launch":
+				int launchPID = message.getPid();
 				MigratableProcess newProcess = message.getProcess();
-				Thread newThread = new Thread();
+				Thread newThread = new Thread(newProcess);
 				newThread.start();
-				newProcess.resume();
+				runningPIDs.add(launchPID);
+				PIDProcessMap.put(launchPID, newProcess);
+				PIDThreadMap.put(launchPID, newThread);
+				//newProcess.resume();
 				break;
+				
 		case "migrate":
+				int migratePID = message.getPid();
 				MigratableProcess migratedProcess = message.getProcess();
 				migratedProcess.suspend();
-				Thread migrateThread = new Thread(); 
+				Thread migrateThread = new Thread(migratedProcess); 
 				migrateThread.start();
-				migratedProcess.resume();
+				runningPIDs.add(migratePID);
+				PIDProcessMap.put(migratePID, migratedProcess);
+				PIDThreadMap.put(migratePID, migrateThread);
+				//migratedProcess.resume();
 				break;
+				
 		case "remove":
 			    int pid = message.getPid();
 			    Thread removedThread = PIDThreadMap.get(pid);
 				removedThread.interrupt();
+				runningPIDs.remove(pid);
+				PIDProcessMap.remove(pid);
+				PIDThreadMap.remove(pid);
 				break;
 
 		default:
