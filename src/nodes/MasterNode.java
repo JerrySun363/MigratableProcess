@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import manager.MigratableProcess;
 import manager.ProcessManager;
 
 /**
@@ -15,6 +16,7 @@ import manager.ProcessManager;
  */
 public class MasterNode implements Runnable{
 
+	private int PID = 0;
 	private int portNum = 15640;
 	private ServerSocket listener;
 	private boolean isRun = false;
@@ -26,6 +28,10 @@ public class MasterNode implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private int launchProcess(MigratableProcess process) {
+		return 0;
 	}
 	
 	public MasterNode(int portNum2) {
@@ -48,6 +54,9 @@ public class MasterNode implements Runnable{
 				e.printStackTrace();
 			}
 			
+			
+			// polling information from all the slave nodes
+			//TODO
 		}
 	}
 	
