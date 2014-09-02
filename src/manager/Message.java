@@ -33,6 +33,16 @@ public class Message {
 	}
 
 
+	public int getSlaveId() {
+		return slaveId;
+	}
+
+
+	public void setSlaveId(int slaveId) {
+		this.slaveId = slaveId;
+	}
+
+
 	public String getType() {
 		return type;
 	}
@@ -43,12 +53,13 @@ public class Message {
 	}
 
 
-	public int getSlaveId() {
-		return slaveId;
+	public MigratableProcess getProcess() {
+		return process;
 	}
 
 
-	public void setSlaveId(int slaveId) {
-		this.slaveId = slaveId;
+	public void setProcess(MigratableProcess process) {
+		this.process = process;
 	}
+
 }
