@@ -6,13 +6,14 @@ package nodes;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedList;
 
-//import listenServer.listener;
+import manager.Message;
 import manager.MigratableProcess;
 
 /**
@@ -26,6 +27,7 @@ public class MasterNode implements Runnable{
 	private ServerSocket serverSocket;
 	private boolean isRun = false;
 	private HashSet<Integer> slaveIds;
+	private LinkedList<Socket> socketList;
 	private HashMap<Integer, Socket> slaveSocketMap;
 	private HashMap<Integer, Integer> PIDSlaveMap;
 	private HashMap<Integer, Integer> slaveLoadMap;
@@ -38,17 +40,67 @@ public class MasterNode implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		this.isRun = true;
+		this.slaveIds = new HashSet<Integer>();
+		this.socketList = new LinkedList<Socket>();
+		this.slaveSocketMap = new HashMap<Integer, Socket>();
+		this.PIDSlaveMap = new HashMap<Integer, Integer>();
+		this.slaveLoadMap = new HashMap<Integer, Integer>();
 	}
 	
+	/*
+	 * launch a new process for ProcessManager
+	 */
 	public int launchProcess(MigratableProcess process) {
-		
+		int slaveId = chooseBestSlave();
+		Message launchMessage = new Message(PID, "launch", slaveId);
+		sendMsgToSlave(launchMessage, slaveId);
 		PID++;
-		return 0;
+		return PID-1;
 	}
 	
+    /*
+     *  migrate process from one slaveNode to another slaveNode
+     */
+    public void migrate(int PID) {
+    	//suspend the process in the original slaveNode
+    	int originalSlaveId = PIDSlaveMap.get(PID);
+    	Message suspendMessage = new Message(PID, "suspend", originalSlaveId);
+    	sendMsgToSlave(suspendMessage, originalSlaveId);
+    	
+    	// resume this process in another slaveNode
+    	int slaveId = chooseBestSlave();
+    	Message migrateMessage = new Message(PID, "migrate", slaveId);
+    	sendMsgToSlave(migrateMessage, slaveId);
+    }  
+    
+    
+    /*
+     *  remove one process using PID
+     */
+    public void remove(int PID) {
+    	int slaveId = PIDSlaveMap.get(PID);
+    	Message removeMessage = new Message(PID, "remove", slaveId);
+    	sendMsgToSlave(removeMessage, slaveId);
+    }
+    
+    
+    /*
+     *  send message to slaveNode to do launch/migrate/remove/suspend
+     */
+    public void sendMsgToSlave(Message message, int slaveId) {
+    	Socket slaveSocket = slaveSocketMap.get(slaveId);
+		try {
+			ObjectOutputStream objectOut = new ObjectOutputStream(slaveSocket.getOutputStream());
+			objectOut.writeObject(message);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
     public void disconnect() {
 		
-		List<Socket> socketList = null;
 		for (Socket slaveSocket : socketList) {
 			try {
 				slaveSocket.close();
@@ -57,19 +109,7 @@ public class MasterNode implements Runnable{
 			}
 		}
 	}
-    
-    public void migrate() {
-    	
-    }  
-    
-    public void remove() {
-    	
-    }
 	
-	
-	public MasterNode(int portNum2) {
-		// TODO Auto-generated constructor stub
-	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
@@ -82,7 +122,9 @@ public class MasterNode implements Runnable{
 			int slaveId = 0;
 			try {
 				Socket socket = serverSocket.accept();
+				slaveIds.add(slaveId);
 				new listener(socket, slaveId++).start();
+				socketList.add(socket);
 				slaveSocketMap.put(slaveId, socket);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -92,6 +134,22 @@ public class MasterNode implements Runnable{
 			// polling information from all the slave nodes
 			//TODO
 		}
+	}
+	
+	
+	
+	/*
+	 * choose the slave node with least load
+	 */
+	private int chooseBestSlave() {
+		int slaveId = 0;
+		int load = slaveLoadMap.get(0);
+		for (int id : slaveLoadMap.keySet()) {
+			if (slaveLoadMap.get(id) < load) {
+				slaveId = id;
+			}
+		}
+		return slaveId;
 	}
 	
 	private static class listener extends Thread {

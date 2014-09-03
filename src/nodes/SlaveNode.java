@@ -129,6 +129,10 @@ public class SlaveNode {
 				//migratedProcess.resume();
 				break;
 				
+		case "suspend":
+				
+				break;
+				
 		case "remove":
 			    int pid = message.getPid();
 			    Thread removedThread = PIDThreadMap.get(pid);
