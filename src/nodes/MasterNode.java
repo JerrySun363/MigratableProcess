@@ -22,8 +22,7 @@ import manager.MigratableProcess;
  */
 public class MasterNode implements Runnable {
 	private int PID = 0;
-	private int portNum = 15640;
-	//private static int DEFAULT_PORT = 15640;
+	private static int DEFAULT_PORT = 15640;
 	private ServerSocket serverSocket;
 	private boolean isRun = false;
 	private HashSet<Integer> slaveIds;
@@ -33,8 +32,11 @@ public class MasterNode implements Runnable {
 	private HashMap<Integer, Integer> slaveLoadMap;
 	
 	
+	public MasterNode(){
+		this(DEFAULT_PORT);
+	}
+	
 	public MasterNode(int portNum) {
-		this.portNum = portNum;
 		try {
 			this.serverSocket = new ServerSocket(portNum);
 		} catch (IOException e) {
