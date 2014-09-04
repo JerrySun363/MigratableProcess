@@ -70,25 +70,27 @@ public class GrepProcess implements MigratableProcess
 		suspending = false;
 	}
 
+	
 	public void suspend()
 	{
 		suspending = true;
 		while (suspending);
 	}
 
-	/* (non-Javadoc)
-	 * @see MigratableProcess#toSring()
+	/**
+	 * This methods tries to give information about the current running program.
 	 */
 	@Override
 	public String toSring() {
-		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	/**
+	 * This methods tries to resume the program.
+	 */
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
-		
+		suspending = false;
 	}
 
 }
