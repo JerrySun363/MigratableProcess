@@ -4,7 +4,6 @@
 package nodes;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -102,6 +101,9 @@ public class MasterNode implements Runnable {
 		}
     }
     
+    /*
+     *  disconnect the sockets to all the slaveNodes
+     */
     public void disconnect() {
 		
 		for (Socket slaveSocket : socketList) {
@@ -113,19 +115,18 @@ public class MasterNode implements Runnable {
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
+
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		
 		while (isRun) {
 			int slaveId = 0;
 			try {
 				Socket socket = serverSocket.accept();
 				slaveIds.add(slaveId);
-				new listener(socket, slaveId++).start();
+				
+				new ListenerForSlave(socket, slaveId++, this).start();
+				
 				socketList.add(socket);
 				slaveSocketMap.put(slaveId, socket);
 			} catch (IOException e) {
@@ -138,7 +139,6 @@ public class MasterNode implements Runnable {
 		}
 	}
 	
-	
 	public void excuteMasterJob(Message message) {
 		switch (message.getType()) {
 
@@ -148,11 +148,9 @@ public class MasterNode implements Runnable {
 		case "migrate":
 			int migratePID = message.getPid();
 			MigratableProcess migratedProcess = message.getProcess();
-			//migratedProcess.suspend();
 			int slaveId = chooseBestSlave();
 	    	Message migrateMessage = new Message(migratePID, "migrate", slaveId, migratedProcess);
 	    	sendMsgToSlave(migrateMessage, slaveId);
-
 			break;
 
 		case "suspend":
@@ -179,6 +177,7 @@ public class MasterNode implements Runnable {
 		}
 	}
 	
+	
 	/*
 	 * choose the slave node with least load
 	 */
@@ -193,48 +192,7 @@ public class MasterNode implements Runnable {
 		return slaveId;
 	}
 	
-	private class listener extends Thread {
-		private Socket socket;
-		private int slaveId;
-		
-		public listener(Socket socket, int slaveId) {
-			this.socket = socket;
-			this.slaveId = slaveId;
-			log("New connection with client# " + slaveId + " at " + socket);
-		}
-		
-		public void run() {
-			try {
-				ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-				
-				Object object = null;
-				Message message = null;
-				while (true) {
-					object = in.readObject();
-					
-					if (!(object instanceof Message)) {
-						continue;
-					}
-					message = (Message)object;
-					MasterNode.this.excuteMasterJob(message); // TODO 
-				}
-			} catch (Exception e) {
-				log("Error handling client# " + slaveId + ": " + e);
-			} finally {
-				try {
-					socket.close();
-				} catch (Exception e2) {
-					log("Couldn't close a socket, what's going on?");
-				}
-				log("Connection with client# " + slaveId + " closed");
-			}
-		}
-		
-		
-		private void log(String info) {
-			System.out.println(info);
-		}
-		
-	}
+	
+	
 	
 }
