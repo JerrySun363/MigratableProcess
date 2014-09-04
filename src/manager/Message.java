@@ -21,6 +21,13 @@ public class Message {
 		this.type = type;
 		this.slaveId = slaveId;
 	}
+	
+	public Message (int PID, String type, int slaveId, MigratableProcess process) {
+		this.pid = PID;
+		this.type = type;
+		this.slaveId = slaveId;
+		this.process = process;
+	}
 
 
 	public int getPid() {
