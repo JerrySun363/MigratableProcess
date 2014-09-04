@@ -96,10 +96,16 @@ public class ProcessManager {
 					parameters[i] = args[2 + i];
 				}
 				pid = this.getMasterNode().launchProcess(
-						processConstructor.newInstance((Object)parameters));
-				if(pid > 0 ){
-					System.out.println("Successful Running the Process!\n PID is "+ pid);
-				}else{
+						processConstructor.newInstance((Object) parameters));
+				boolean isSuccess = false;
+
+				isSuccess = this.masterNode.checkLaunch(pid);
+
+				if (isSuccess) {
+					System.out
+							.println("Successful Running the Process!\n PID is "
+									+ pid);
+				} else {
 					System.out.println("Fail to create the process!");
 				}
 			} catch (ClassNotFoundException e) {
@@ -123,6 +129,9 @@ public class ProcessManager {
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 				System.out.println("Fail to create the process!");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				System.out.println("Fail to check launching status!");
 			}
 			return;
 		case "migrate":
@@ -132,17 +141,25 @@ public class ProcessManager {
 			try {
 				pid = Integer.parseInt(args[1]);
 				this.masterNode.migrate(pid);
-				/*if(isSuccess){
-					System.out.println("Successfully migrate the process with pid " + pid);
-				}else{
-					System.out.println("Fail to migrate the process with pid " + pid);
-				}*/
+				boolean isSuccess = this.masterNode.checkMigrating(pid);
+				if (isSuccess) {
+					System.out
+							.println("Successfully migrate the process with pid "
+									+ pid);
+				} else {
+					System.out.println("Fail to migrate the process with pid "
+							+ pid);
+				}
+
+				return;
+			} catch (InterruptedException e) {
+				System.out.println("Failing in check migration status");
 				return;
 			} catch (Exception e) {
 				System.out.println("Please input valid pid");
 				return;
 			}
-			
+
 		case "remove":
 			if (args.length != 2) {
 				System.out.println("Please input valid pid");
@@ -150,17 +167,24 @@ public class ProcessManager {
 			try {
 				pid = Integer.parseInt(args[1]);
 				masterNode.remove(pid);
-				/*if(isSuccess){
-					System.out.println("Successfully remove the process with pid " + pid);
-				}else{
-					System.out.println("Fail to remove the process with pid " + pid);
-				}*/
+				boolean isSuccess = masterNode.checkRemoving(pid);
+				if (isSuccess) {
+					System.out
+							.println("Successfully remove the process with pid "
+									+ pid);
+				} else {
+					System.out.println("Fail to remove the process with pid "
+							+ pid);
+				}
+				return;
+			} catch (InterruptedException e) {
+				System.out.println("Failing in check removing status");
 				return;
 			} catch (Exception e) {
 				System.out.println("Please input valid pid");
 				return;
 			}
-			
+
 		default:
 			System.out.println("Unrecognized command!");
 			this.printUsageMessage();
