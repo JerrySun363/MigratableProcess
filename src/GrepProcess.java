@@ -82,7 +82,9 @@ public class GrepProcess implements MigratableProcess
 	 */
 	@Override
 	public String toSring() {
-		return null;
+		String inputInfo = "Input Info: "+ inFile.toString();
+		String outputInfo = "Output Info: " + outFile.toString();
+		return inputInfo+"\n"+ outputInfo;
 	}
 	
 	/**

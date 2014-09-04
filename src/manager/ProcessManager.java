@@ -131,12 +131,12 @@ public class ProcessManager {
 			}
 			try {
 				pid = Integer.parseInt(args[1]);
-				boolean isSuccess = this.masterNode.migrate(pid);
-				if(isSuccess){
+				this.masterNode.migrate(pid);
+				/*if(isSuccess){
 					System.out.println("Successfully migrate the process with pid " + pid);
 				}else{
 					System.out.println("Fail to migrate the process with pid " + pid);
-				}
+				}*/
 				return;
 			} catch (Exception e) {
 				System.out.println("Please input valid pid");
@@ -149,12 +149,12 @@ public class ProcessManager {
 			}
 			try {
 				pid = Integer.parseInt(args[1]);
-				boolean isSuccess = this.masterNode.remove(pid);
-				if(isSuccess){
+				masterNode.remove(pid);
+				/*if(isSuccess){
 					System.out.println("Successfully remove the process with pid " + pid);
 				}else{
 					System.out.println("Fail to remove the process with pid " + pid);
-				}
+				}*/
 				return;
 			} catch (Exception e) {
 				System.out.println("Please input valid pid");
