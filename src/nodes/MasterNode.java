@@ -20,10 +20,11 @@ import manager.MigratableProcess;
  * @author Nicolas_Yu
  *
  */
-public class MasterNode implements Runnable{
-
+public class MasterNode implements Runnable, MasterNodeInterface{
 	private int PID = 0;
-	private int portNum = 15640;
+	private int portNum;
+	private static int DEFAULT_PORT = 15640;
+	private ServerSocket listener;
 	private ServerSocket serverSocket;
 	private boolean isRun = false;
 	private HashSet<Integer> slaveIds;
@@ -34,6 +35,11 @@ public class MasterNode implements Runnable{
 	
 	
 	public MasterNode() {
+		this(DEFAULT_PORT);
+	}
+	
+	public MasterNode(int portNum) {
+		this.portNum = portNum;
 		try {
 			this.serverSocket = new ServerSocket(portNum);
 		} catch (IOException e) {
@@ -110,7 +116,6 @@ public class MasterNode implements Runnable{
 		}
 	}
 	
-
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
@@ -134,6 +139,17 @@ public class MasterNode implements Runnable{
 			// polling information from all the slave nodes
 			//TODO
 		}
+	}
+
+	public boolean migrate(int pid) {
+		return true;
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean remove(int pid) {
+		// TODO Auto-generated method stub
+		return true;
 	}
 	
 	
