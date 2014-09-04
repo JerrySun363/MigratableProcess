@@ -31,6 +31,11 @@ public class MasterNode implements Runnable {
 	private HashMap<Integer, Integer> PIDSlaveMap;
 	private HashMap<Integer, Integer> slaveLoadMap;
 	
+	//record the intermediate status for different operations
+	private volatile HashSet<Integer> launching; 
+	private volatile HashSet<Integer> migrating;
+	private volatile HashSet<Integer> removing;
+	
 	
 	public MasterNode(){
 		this(DEFAULT_PORT);
