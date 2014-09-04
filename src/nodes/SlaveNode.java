@@ -114,8 +114,18 @@ public class SlaveNode {
 				runningPIDs.add(launchPID);
 				PIDProcessMap.put(launchPID, newProcess);
 				PIDThreadMap.put(launchPID, newThread);
-				//newProcess.resume();
+				
+				Message launchSuccessMessage = new Message(launchPID, "launchSuccess", -1);
+				sendMsgToMaster(launchSuccessMessage);
+				
 				break;
+		
+		case "suspend&migrate":
+			    int suspendPID = message.getPid();
+			    MigratableProcess suspendProcess = message.getProcess();
+			    suspendProcess.suspend();
+			    Message migrateMessage = new Message(suspendPID, "migrate", 0, suspendProcess);
+			    sendMsgToMaster(migrateMessage);
 				
 		case "migrate":
 				int migratePID = message.getPid();
@@ -126,11 +136,14 @@ public class SlaveNode {
 				runningPIDs.add(migratePID);
 				PIDProcessMap.put(migratePID, migratedProcess);
 				PIDThreadMap.put(migratePID, migrateThread);
-				//migratedProcess.resume();
+				
+				Message migrateSuccessMessage = new Message(migratePID, "migrateSuccess", -1);
+				sendMsgToMaster(migrateSuccessMessage);
+
 				break;
 				
 		case "suspend":
-				
+
 				break;
 				
 		case "remove":
@@ -140,6 +153,9 @@ public class SlaveNode {
 				runningPIDs.remove(pid);
 				PIDProcessMap.remove(pid);
 				PIDThreadMap.remove(pid);
+				
+				Message removeMessage = new Message(pid, "removeSuccess", -1);
+				sendMsgToMaster(removeMessage);
 				break;
 
 		default:

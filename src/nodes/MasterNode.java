@@ -3,9 +3,8 @@
  */
 package nodes;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,15 +15,15 @@ import java.util.LinkedList;
 import manager.Message;
 import manager.MigratableProcess;
 
+
 /**
  * @author Nicolas_Yu
  *
  */
-public class MasterNode implements Runnable, MasterNodeInterface{
+public class MasterNode implements Runnable {
 	private int PID = 0;
-	private int portNum;
-	private static int DEFAULT_PORT = 15640;
-	private ServerSocket listener;
+	private int portNum = 15640;
+	//private static int DEFAULT_PORT = 15640;
 	private ServerSocket serverSocket;
 	private boolean isRun = false;
 	private HashSet<Integer> slaveIds;
@@ -33,10 +32,6 @@ public class MasterNode implements Runnable, MasterNodeInterface{
 	private HashMap<Integer, Integer> PIDSlaveMap;
 	private HashMap<Integer, Integer> slaveLoadMap;
 	
-	
-	public MasterNode() {
-		this(DEFAULT_PORT);
-	}
 	
 	public MasterNode(int portNum) {
 		this.portNum = portNum;
@@ -59,7 +54,7 @@ public class MasterNode implements Runnable, MasterNodeInterface{
 	 */
 	public int launchProcess(MigratableProcess process) {
 		int slaveId = chooseBestSlave();
-		Message launchMessage = new Message(PID, "launch", slaveId);
+		Message launchMessage = new Message(PID, "launch", slaveId, process);
 		sendMsgToSlave(launchMessage, slaveId);
 		PID++;
 		return PID-1;
@@ -71,13 +66,8 @@ public class MasterNode implements Runnable, MasterNodeInterface{
     public void migrate(int PID) {
     	//suspend the process in the original slaveNode
     	int originalSlaveId = PIDSlaveMap.get(PID);
-    	Message suspendMessage = new Message(PID, "suspend", originalSlaveId);
+    	Message suspendMessage = new Message(PID, "suspend&migrate", originalSlaveId);
     	sendMsgToSlave(suspendMessage, originalSlaveId);
-    	
-    	// resume this process in another slaveNode
-    	int slaveId = chooseBestSlave();
-    	Message migrateMessage = new Message(PID, "migrate", slaveId);
-    	sendMsgToSlave(migrateMessage, slaveId);
     }  
     
     
@@ -140,19 +130,47 @@ public class MasterNode implements Runnable, MasterNodeInterface{
 			//TODO
 		}
 	}
+	
+	
+	public void excuteMasterJob(Message message) {
+		switch (message.getType()) {
 
-	public boolean migrate(int pid) {
-		return true;
-		// TODO Auto-generated method stub
+		case "launch":
+			break;
+
+		case "migrate":
+			int migratePID = message.getPid();
+			MigratableProcess migratedProcess = message.getProcess();
+			//migratedProcess.suspend();
+			int slaveId = chooseBestSlave();
+	    	Message migrateMessage = new Message(migratePID, "migrate", slaveId, migratedProcess);
+	    	sendMsgToSlave(migrateMessage, slaveId);
+
+			break;
+
+		case "suspend":
+			break;
+
+		case "remove":
+			break;
 		
-	}
+		// Sunchen can print any success information if he want
+		case "launchSuccess":
+			
+		    break;
+		
+		case "migrateSuccess":
+			
+			break;
+	    
+		case "removeSuccess":
+			
+			break;
 
-	public boolean remove(int pid) {
-		// TODO Auto-generated method stub
-		return true;
+		default:
+			break;
+		}
 	}
-	
-	
 	
 	/*
 	 * choose the slave node with least load
@@ -168,7 +186,7 @@ public class MasterNode implements Runnable, MasterNodeInterface{
 		return slaveId;
 	}
 	
-	private static class listener extends Thread {
+	private class listener extends Thread {
 		private Socket socket;
 		private int slaveId;
 		
@@ -180,11 +198,18 @@ public class MasterNode implements Runnable, MasterNodeInterface{
 		
 		public void run() {
 			try {
-				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 				
+				Object object = null;
+				Message message = null;
 				while (true) {
-					String input = in.readLine();
+					object = in.readObject();
 					
+					if (!(object instanceof Message)) {
+						continue;
+					}
+					message = (Message)object;
+					MasterNode.this.excuteMasterJob(message); // TODO 
 				}
 			} catch (Exception e) {
 				log("Error handling client# " + slaveId + ": " + e);
