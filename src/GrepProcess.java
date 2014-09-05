@@ -73,6 +73,8 @@ public class GrepProcess implements MigratableProcess
 	
 	public void suspend()
 	{
+		this.inFile.setMigrated(true);
+		this.outFile.setMigrated(true);
 		suspending = true;
 		while (suspending);
 	}
@@ -92,6 +94,8 @@ public class GrepProcess implements MigratableProcess
 	 */
 	@Override
 	public void resume() {
+		this.inFile.setMigrated(false);
+		this.outFile.setMigrated(false);
 		suspending = false;
 	}
 

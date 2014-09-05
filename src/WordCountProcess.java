@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Scanner;
 
 import manager.MigratableProcess;
 
@@ -17,9 +18,9 @@ public class WordCountProcess implements MigratableProcess {
 	private static final long serialVersionUID = 1901953592955832517L;
 	private int lineCount = 0;
 	private int wordCount = 0;
-	private boolean suspend = false; 
+	private boolean suspend = false;
 	private TransactionalFileInputStream input;
-	
+
 	public WordCountProcess(String args[]) throws IOException {
 		if (args == null || args.length != 1) {
 			System.out.println("Usage: java WordCount <inputFile>");
@@ -30,19 +31,41 @@ public class WordCountProcess implements MigratableProcess {
 
 	@Override
 	public void run() {
-		
+		Scanner scanner = new Scanner(input);
+		while (!this.suspend) {
+			if (scanner.hasNextLine()) {
+				this.lineCount++;
+				String line = scanner.nextLine();
+				String[] subs = line.split("\\W");
+				this.wordCount += subs.length;
+			} else {
+				scanner.close();
+				System.out.println("Finish running.");
+				System.out.println(String.format(
+						"Line Count: %d, Word Count: %d", this.lineCount,
+						this.wordCount));
+			}
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// Simply ignore this.
+			}
+		}
+
 	}
 
 	@Override
 	public void suspend() {
+		this.input.setMigrated(true);
 		this.suspend = true;
-		while(suspend){};
+		while (suspend) {
+		}
 	}
 
 	@Override
 	public void resume() {
-		// TODO Auto-generated method stub
-
+		this.input.setMigrated(false);
+		this.suspend = false;
 	}
 
 	@Override
