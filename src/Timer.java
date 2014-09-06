@@ -23,6 +23,14 @@ public class Timer implements MigratableProcess{
 	final private long SLEEP =1000;
 	private boolean suspending = false;
 	
+	public Timer(String args[]){
+		
+	}
+	
+	public Timer(){
+		
+	}
+	
 	@Override
 	public void run() {
 		while(!this.suspending){

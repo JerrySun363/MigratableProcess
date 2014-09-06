@@ -184,7 +184,8 @@ public class ProcessManager {
 				System.out.println("Please input valid pid");
 				return;
 			}
-
+		case "status":
+			this.masterNode.pullInformation();
 		default:
 			System.out.println("Unrecognized command!");
 			this.printUsageMessage();
@@ -196,6 +197,7 @@ public class ProcessManager {
 		System.out.println("launch <ProcessName>");
 		System.out.println("migrate <pid>");
 		System.out.println("remove <pid>");
+		System.out.println("status");
 		System.out.println("exit");
 	}
 }
