@@ -140,8 +140,8 @@ public class MasterNode implements Runnable {
 
 	@Override
 	public void run() {
+		int slaveId = 0;
 		while (isRun) {
-			int slaveId = 0;
 			try {
 				Socket socket = serverSocket.accept();
 				slaveIds.add(slaveId);
@@ -150,6 +150,7 @@ public class MasterNode implements Runnable {
 
 				socketList.add(socket);
 				slaveSocketMap.put(slaveId, socket);
+				slaveLoadMap.put(slaveId, 0);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -289,7 +290,7 @@ public class MasterNode implements Runnable {
 		}
 		return false;
 	}
-	
+	 
 	/**
 	 * update the information of all the nodes.
 	 */

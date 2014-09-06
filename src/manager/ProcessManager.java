@@ -22,19 +22,24 @@ public class ProcessManager {
 	Scanner scanner;
 
 	public ProcessManager() {
-		this.setMasterNode(new MasterNode());
-		this.getMasterNode().run();
+		MasterNode m = new MasterNode();
+		Thread thread = new Thread(m);
+		thread.start();
+		this.setMasterNode(m);
 		this.scanner = new Scanner(System.in);
 	}
 
 	public ProcessManager(int portNum) {
-		this.setMasterNode(new MasterNode(portNum));
-		this.getMasterNode().run();
+		MasterNode m = new MasterNode(portNum);
+		Thread thread = new Thread(m);
+		thread.start();
+		this.setMasterNode(m);
 		this.scanner = new Scanner(System.in);
 
 	}
 
 	public static void main(String args[]) {
+		
 		if (args.length > 1) {
 			System.out
 					.println("Usage: java ProcessManager or java ProcessManager <portNumer>");
@@ -47,6 +52,7 @@ public class ProcessManager {
 		} else {
 			pm = new ProcessManager();
 		}
+		
 		pm.acceptCommand();
 
 	}
