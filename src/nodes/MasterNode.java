@@ -153,8 +153,8 @@ public class MasterNode implements Runnable {
 				Socket socket = serverSocket.accept();
 				this.slaveIds.add(slaveId);
 
-				new ListenerForSlave(socket, slaveId++, this).start();
-
+				new ListenerForSlave(socket, slaveId, this).start();
+				slaveId++;
 				this.socketList.add(socket);
 				this.slaveSocketMap.put(slaveId, socket);
 				this.slaveLoadMap.put(slaveId, 0);

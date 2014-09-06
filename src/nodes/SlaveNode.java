@@ -172,6 +172,7 @@ public class SlaveNode {
 		
 		case "pulling":
 			
+			    System.out.println("pulling test");
 				LinkedList<Integer> runningPIDLists = new LinkedList<Integer>();
 				for (Integer a : this.runningPIDs) {
 					runningPIDLists.add(a);
