@@ -133,8 +133,11 @@ public class SlaveNode {
 			    int suspendPID = message.getPid();
 			    MigratableProcess suspendProcess = message.getProcess();
 			    suspendProcess.suspend();
+			    runningPIDs.remove(suspendPID);
 			    Message migrateMessage = new Message(suspendPID, "migrate", 0, suspendProcess);
 			    sendMsgToMaster(migrateMessage);
+			    
+			    break;
 				
 		case "migrate":
 				int migratePID = message.getPid();
@@ -170,11 +173,15 @@ public class SlaveNode {
 		case "pulling":
 			
 				LinkedList<Integer> runningPIDLists = new LinkedList<Integer>();
-				for (Integer a : runningPIDs) {
+				for (Integer a : this.runningPIDs) {
 					runningPIDLists.add(a);
 				}
+				System.out.println("pulling test");
+				System.out.println(this.runningPIDs.toString());
 				Message pullingMessage = new Message("pulling", runningPIDLists);
 				sendMsgToMaster(pullingMessage);
+				
+				break;
 
 		default:
 			break;

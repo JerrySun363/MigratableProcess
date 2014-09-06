@@ -43,6 +43,8 @@ public class MasterNode implements Runnable {
 	
 	private static int RETRY = 5;
 	private static int SLEEP = 1000;
+	
+	private int pullingNum = 0;
 
 	public MasterNode() {
 		this(DEFAULT_PORT);
@@ -218,7 +220,7 @@ public class MasterNode implements Runnable {
 				runningPID.add(pid);
 				PIDSlaveMap.put(pid, fromSlaveId);
 			}
-			
+			pullingNum++;
 			break;
 
 		default:
@@ -318,6 +320,15 @@ public class MasterNode implements Runnable {
 	 * print the status message for all the slave nodes.
 	 */
 	public void printStatusMessages(){
+		while (pullingNum < slaveIds.size()) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		pullingNum = 0;
 		System.out.println("PId\tSlaveId");
 		for(int pid : this.runningPID){
 			System.out.println(pid+"\t"+this.PIDSlaveMap.get(pid));
