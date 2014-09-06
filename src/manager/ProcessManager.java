@@ -13,8 +13,6 @@ import nodes.MasterNode;
  * ProcessManager serves as the running side to accept starting command and also
  * take the start command.
  * 
- * It also maintains the PID for each process it tries to run.
- * 
  * @author Nicolas Yu
  * @author Jerry Sun
  * 
