@@ -154,10 +154,10 @@ public class MasterNode implements Runnable {
 				this.slaveIds.add(slaveId);
 
 				new ListenerForSlave(socket, slaveId, this).start();
-				slaveId++;
 				this.socketList.add(socket);
 				this.slaveSocketMap.put(slaveId, socket);
 				this.slaveLoadMap.put(slaveId, 0);
+				slaveId++;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
