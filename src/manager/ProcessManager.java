@@ -184,6 +184,7 @@ public class ProcessManager {
 			}
 		case "status":
 			this.masterNode.pullInformation();
+			this.masterNode.printStatusMessages();
 		default:
 			System.out.println("Unrecognized command!");
 			this.printUsageMessage();

@@ -10,7 +10,9 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import manager.Message;
 import manager.MigratableProcess;
@@ -36,8 +38,8 @@ public class MasterNode implements Runnable {
 	private volatile HashSet<Integer> removing;
 
 	// record the pulling information of runningPID and corresponding slaveNode
-	private HashSet<Integer> runningPID;
-	private HashMap<Integer, Integer> runningPIDSlaveMap;
+	private Set<Integer> runningPID;
+	private Map<Integer, Integer> runningPIDSlaveMap;
 	
 	private static int RETRY = 5;
 	private static int SLEEP = 1000;
@@ -59,7 +61,7 @@ public class MasterNode implements Runnable {
 		this.PIDSlaveMap = new HashMap<Integer, Integer>();
 		this.slaveLoadMap = new HashMap<Integer, Integer>();
 		
-		this.runningPID = new HashSet<Integer>();
+		this.runningPID = new TreeSet<Integer>();
 		this.runningPIDSlaveMap = new HashMap<Integer, Integer>();
 	}
 
@@ -199,9 +201,9 @@ public class MasterNode implements Runnable {
 			
 		case "pulling":
 			LinkedList<Integer> runningPIDs = message.getRunningPIDs();
-			for (Integer a : runningPIDs) {
-				runningPID.add(a);
-				PIDSlaveMap.put(a, fromSlaveId);
+			for (Integer pid : runningPIDs) {
+				runningPID.add(pid);
+				PIDSlaveMap.put(pid, fromSlaveId);
 			}
 			
 			break;
@@ -288,20 +290,26 @@ public class MasterNode implements Runnable {
 		return false;
 	}
 	
-	
+	/**
+	 * update the information of all the nodes.
+	 */
 	public void pullInformation() {
 		Message pullingMessage = new Message("pulling");
-		for (Socket slaveSocket : socketList) {
-			try {
-				ObjectOutputStream objectOut = new ObjectOutputStream(
-						slaveSocket.getOutputStream());
-				objectOut.writeObject(pullingMessage);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		for (int slaveId : this.slaveSocketMap.keySet()) {
+			this.sendMsgToSlave(pullingMessage, slaveId);
 		}
 		
 	}
+	
+	/**
+	 * print the status message for all the slave nodes.
+	 */
+	public void printStatusMessages(){
+		System.out.println("PId\tSlaveId");
+		for(int pid : this.runningPID){
+			System.out.println(pid+"\t"+this.PIDSlaveMap.get(pid));
+		}
+	}
+	
 
 }
