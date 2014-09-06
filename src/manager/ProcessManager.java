@@ -160,7 +160,8 @@ public class ProcessManager {
 				System.out.println("Failing in check migration status");
 				return;
 			} catch (Exception e) {
-				System.out.println("Please input valid pid");
+				e.printStackTrace();
+				System.out.println("We have met an execption!");
 				return;
 			}
 
@@ -185,7 +186,7 @@ public class ProcessManager {
 				System.out.println("Failing in check removing status");
 				return;
 			} catch (Exception e) {
-				System.out.println("Please input valid pid");
+				System.out.println("We have met an unexpected exception!");
 				return;
 			}
 		case "status":

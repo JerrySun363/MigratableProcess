@@ -93,6 +93,7 @@ public class MasterNode implements Runnable {
 	public void migrate(int PID) {
 		// suspend the process in the original slaveNode
 		int originalSlaveId = PIDSlaveMap.get(PID);
+		System.out.println("Original slaveid is " + originalSlaveId +" pid is"+ PID);
 		Message suspendMessage = new Message(PID, "suspend&migrate",
 				originalSlaveId);
 		sendMsgToSlave(suspendMessage, originalSlaveId);
@@ -121,6 +122,7 @@ public class MasterNode implements Runnable {
 	 *            the slaveId to be sent to.
 	 */
 	public void sendMsgToSlave(Message message, int slaveId) {
+		System.out.println("The slave nodeId is " + slaveId);
 		Socket slaveSocket = slaveSocketMap.get(slaveId);
 		try {
 			ObjectOutputStream objectOut = new ObjectOutputStream(

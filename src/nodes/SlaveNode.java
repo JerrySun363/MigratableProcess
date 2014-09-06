@@ -119,13 +119,14 @@ public class SlaveNode {
 				int launchPID = message.getPid();
 				MigratableProcess newProcess = message.getProcess();
 				Thread newThread = new Thread(newProcess);
-				newThread.start();
+				
 				runningPIDs.add(launchPID);
 				PIDProcessMap.put(launchPID, newProcess);
 				PIDThreadMap.put(launchPID, newThread);
 				
 				Message launchSuccessMessage = new Message(launchPID, "launchSuccess", -1);
 				sendMsgToMaster(launchSuccessMessage);
+				newThread.start();
 				
 				break;
 		
