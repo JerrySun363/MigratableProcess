@@ -63,6 +63,11 @@ public class MasterNode implements Runnable {
 		
 		this.runningPID = new TreeSet<Integer>();
 		this.runningPIDSlaveMap = new HashMap<Integer, Integer>();
+		
+		this.launching = new HashSet<Integer>();
+		this.migrating = new HashSet<Integer>();
+		this.removing = new HashSet<Integer>();
+		
 	}
 
 	/**
@@ -144,13 +149,13 @@ public class MasterNode implements Runnable {
 		while (isRun) {
 			try {
 				Socket socket = serverSocket.accept();
-				slaveIds.add(slaveId);
+				this.slaveIds.add(slaveId);
 
 				new ListenerForSlave(socket, slaveId++, this).start();
 
-				socketList.add(socket);
-				slaveSocketMap.put(slaveId, socket);
-				slaveLoadMap.put(slaveId, 0);
+				this.socketList.add(socket);
+				this.slaveSocketMap.put(slaveId, socket);
+				this.slaveLoadMap.put(slaveId, 0);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -219,9 +224,9 @@ public class MasterNode implements Runnable {
 	 * 
 	 * @return the slave Id to be used
 	 */
-	private int chooseBestSlave() {
-		int slaveId = 0;
-		int load = slaveLoadMap.get(0);
+	public int chooseBestSlave() {
+		int slaveId = 1;
+		int load = slaveLoadMap.get(slaveId);
 		for (int id : slaveLoadMap.keySet()) {
 			if (slaveLoadMap.get(id) < load) {
 				slaveId = id;

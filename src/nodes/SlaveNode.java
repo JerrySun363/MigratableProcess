@@ -95,15 +95,16 @@ public class SlaveNode {
 						continue;
 					}
 					message = (Message) object;
+					slaveNode.excuteJob(message);
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
 				}	
 				
-				slaveNode.excuteJob(message);
+				
 			}	
 		}
 	}

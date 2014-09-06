@@ -3,15 +3,20 @@
  */
 package manager;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 /**
  * @author Nicolas_Yu
  *
  */
-public class Message {
+public class Message implements Serializable {
 	
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -288312225466865055L;
 	private int pid;
 	private int slaveId;
 	private String type;
