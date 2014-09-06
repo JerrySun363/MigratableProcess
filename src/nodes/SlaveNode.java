@@ -12,6 +12,8 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import com.sun.xml.internal.ws.api.pipe.NextAction;
+
 import manager.Message;
 
 /**
@@ -27,12 +29,11 @@ public class SlaveNode {
 	private boolean isRun = false;
 	
 	private String masterHost;
-	private int masterPort;
+	private int masterPort;  
 	
 	private volatile HashSet<Integer> runningPIDs;
 	private HashMap<Integer, MigratableProcess> PIDProcessMap;
 	private HashMap<Integer, Thread> PIDThreadMap;
-	
 	
 	public SlaveNode(String mHost, int mPort) {
 		this.masterHost = mHost;
