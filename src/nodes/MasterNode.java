@@ -194,14 +194,21 @@ public class MasterNode implements Runnable {
 
 		// Chen Sun can print any success information if he wants
 		case "launchSuccess":
+			int lPid = message.getPid();
+			this.PIDSlaveMap.put(lPid, fromSlaveId);
 			this.launching.remove(message.getPid());
 			break;
 
 		case "migrateSuccess":
+			int mPid = message.getPid();
 			this.migrating.remove(message.getPid());
+			this.PIDSlaveMap.put(mPid, fromSlaveId);
 			break;
 
 		case "removeSuccess":
+			int rPid = message.getPid();
+			runningPID.remove(rPid);
+			runningPIDSlaveMap.remove(rPid);
 			this.removing.remove(message.getPid());
 			break;
 			
