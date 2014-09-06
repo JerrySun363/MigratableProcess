@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+
 import manager.Message;
 import manager.MigratableProcess;
 
@@ -34,6 +35,10 @@ public class MasterNode implements Runnable {
 	private volatile HashSet<Integer> migrating;
 	private volatile HashSet<Integer> removing;
 
+	// record the pulling information of runningPID and corresponding slaveNode
+	private HashSet<Integer> runningPID;
+	private HashMap<Integer, Integer> runningPIDSlaveMap;
+	
 	private static int RETRY = 5;
 	private static int SLEEP = 1000;
 
@@ -53,6 +58,9 @@ public class MasterNode implements Runnable {
 		this.slaveSocketMap = new HashMap<Integer, Socket>();
 		this.PIDSlaveMap = new HashMap<Integer, Integer>();
 		this.slaveLoadMap = new HashMap<Integer, Integer>();
+		
+		this.runningPID = new HashSet<Integer>();
+		this.runningPIDSlaveMap = new HashMap<Integer, Integer>();
 	}
 
 	/**
@@ -154,7 +162,7 @@ public class MasterNode implements Runnable {
 	 * 
 	 * @param message
 	 */
-	public void excuteMasterJob(Message message) {
+	public void excuteMasterJob(Message message, int fromSlaveId) {
 		switch (message.getType()) {
 
 		case "launch":
@@ -187,6 +195,15 @@ public class MasterNode implements Runnable {
 
 		case "removeSuccess":
 			this.removing.remove(message.getPid());
+			break;
+			
+		case "pulling":
+			LinkedList<Integer> runningPIDs = message.getRunningPIDs();
+			for (Integer a : runningPIDs) {
+				runningPID.add(a);
+				PIDSlaveMap.put(a, fromSlaveId);
+			}
+			
 			break;
 
 		default:
@@ -269,6 +286,22 @@ public class MasterNode implements Runnable {
 			}
 		}
 		return false;
+	}
+	
+	
+	public void pullInformation() {
+		Message pullingMessage = new Message("pulling");
+		for (Socket slaveSocket : socketList) {
+			try {
+				ObjectOutputStream objectOut = new ObjectOutputStream(
+						slaveSocket.getOutputStream());
+				objectOut.writeObject(pullingMessage);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 	}
 
 }
