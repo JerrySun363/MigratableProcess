@@ -14,10 +14,9 @@ import java.util.LinkedList;
 import manager.Message;
 import manager.MigratableProcess;
 
-
 /**
  * @author Nicolas_Yu
- *
+ * 
  */
 public class MasterNode implements Runnable {
 	private int PID = 0;
@@ -29,17 +28,23 @@ public class MasterNode implements Runnable {
 	private HashMap<Integer, Socket> slaveSocketMap;
 	private HashMap<Integer, Integer> PIDSlaveMap;
 	private HashMap<Integer, Integer> slaveLoadMap;
-	
-	
-	public MasterNode(){
+
+	// record the intermediate status for different operations
+	private volatile HashSet<Integer> launching;
+	private volatile HashSet<Integer> migrating;
+	private volatile HashSet<Integer> removing;
+
+	private static int RETRY = 5;
+	private static int SLEEP = 1000;
+
+	public MasterNode() {
 		this(DEFAULT_PORT);
 	}
-	
+
 	public MasterNode(int portNum) {
 		try {
 			this.serverSocket = new ServerSocket(portNum);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.isRun = true;
@@ -49,58 +54,71 @@ public class MasterNode implements Runnable {
 		this.PIDSlaveMap = new HashMap<Integer, Integer>();
 		this.slaveLoadMap = new HashMap<Integer, Integer>();
 	}
-	
-	/*
+
+	/**
 	 * launch a new process for ProcessManager
 	 */
 	public int launchProcess(MigratableProcess process) {
 		int slaveId = chooseBestSlave();
 		Message launchMessage = new Message(PID, "launch", slaveId, process);
 		sendMsgToSlave(launchMessage, slaveId);
+		this.launching.add(PID);
 		PID++;
-		return PID-1;
+		return PID - 1;
 	}
-	
-    /*
-     *  migrate process from one slaveNode to another slaveNode
-     */
-    public void migrate(int PID) {
-    	//suspend the process in the original slaveNode
-    	int originalSlaveId = PIDSlaveMap.get(PID);
-    	Message suspendMessage = new Message(PID, "suspend&migrate", originalSlaveId);
-    	sendMsgToSlave(suspendMessage, originalSlaveId);
-    }  
-    
-    
-    /*
-     *  remove one process using PID
-     */
-    public void remove(int PID) {
-    	int slaveId = PIDSlaveMap.get(PID);
-    	Message removeMessage = new Message(PID, "remove", slaveId);
-    	sendMsgToSlave(removeMessage, slaveId);
-    }
-    
-    
-    /*
-     *  send message to slaveNode to do launch/migrate/remove/suspend
-     */
-    public void sendMsgToSlave(Message message, int slaveId) {
-    	Socket slaveSocket = slaveSocketMap.get(slaveId);
+
+	/**
+	 * migrate process from one slaveNode to another slaveNode
+	 * 
+	 * @param PID
+	 *            the PID to be migrated
+	 */
+	public void migrate(int PID) {
+		// suspend the process in the original slaveNode
+		int originalSlaveId = PIDSlaveMap.get(PID);
+		Message suspendMessage = new Message(PID, "suspend&migrate",
+				originalSlaveId);
+		sendMsgToSlave(suspendMessage, originalSlaveId);
+		this.migrating.add(PID);
+	}
+
+	/**
+	 * remove one process using PID
+	 * 
+	 * @param PID
+	 *            the PID to be removed
+	 */
+	public void remove(int PID) {
+		int slaveId = PIDSlaveMap.get(PID);
+		Message removeMessage = new Message(PID, "remove", slaveId);
+		sendMsgToSlave(removeMessage, slaveId);
+		this.removing.add(PID);
+	}
+
+	/**
+	 * send message to slaveNode to do launch/migrate/remove/suspend
+	 * 
+	 * @param message
+	 *            the message to slave node
+	 * @param slaveId
+	 *            the slaveId to be sent to.
+	 */
+	public void sendMsgToSlave(Message message, int slaveId) {
+		Socket slaveSocket = slaveSocketMap.get(slaveId);
 		try {
-			ObjectOutputStream objectOut = new ObjectOutputStream(slaveSocket.getOutputStream());
+			ObjectOutputStream objectOut = new ObjectOutputStream(
+					slaveSocket.getOutputStream());
 			objectOut.writeObject(message);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    }
-    
-    /*
-     *  disconnect the sockets to all the slaveNodes
-     */
-    public void disconnect() {
-		
+	}
+
+	/**
+	 * disconnect the sockets to all the slaveNodes
+	 */
+	public void disconnect() {
 		for (Socket slaveSocket : socketList) {
 			try {
 				slaveSocket.close();
@@ -109,31 +127,33 @@ public class MasterNode implements Runnable {
 			}
 		}
 	}
-	
 
 	@Override
 	public void run() {
-		
 		while (isRun) {
 			int slaveId = 0;
 			try {
 				Socket socket = serverSocket.accept();
 				slaveIds.add(slaveId);
-				
+
 				new ListenerForSlave(socket, slaveId++, this).start();
-				
+
 				socketList.add(socket);
 				slaveSocketMap.put(slaveId, socket);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 			// polling information from all the slave nodes
-			//TODO
 		}
 	}
-	
+
+	/**
+	 * execute the master job
+	 * 
+	 * @param message
+	 */
 	public void excuteMasterJob(Message message) {
 		switch (message.getType()) {
 
@@ -144,37 +164,40 @@ public class MasterNode implements Runnable {
 			int migratePID = message.getPid();
 			MigratableProcess migratedProcess = message.getProcess();
 			int slaveId = chooseBestSlave();
-	    	Message migrateMessage = new Message(migratePID, "migrate", slaveId, migratedProcess);
-	    	sendMsgToSlave(migrateMessage, slaveId);
+			Message migrateMessage = new Message(migratePID, "migrate",
+					slaveId, migratedProcess);
+			sendMsgToSlave(migrateMessage, slaveId);
 			break;
 
 		case "suspend":
+
 			break;
 
 		case "remove":
 			break;
-		
-		// Sunchen can print any success information if he want
+
+		// Chen Sun can print any success information if he wants
 		case "launchSuccess":
-			
-		    break;
-		
-		case "migrateSuccess":
-			
+			this.launching.remove(message.getPid());
 			break;
-	    
+
+		case "migrateSuccess":
+			this.migrating.remove(message.getPid());
+			break;
+
 		case "removeSuccess":
-			
+			this.removing.remove(message.getPid());
 			break;
 
 		default:
 			break;
 		}
 	}
-	
-	
-	/*
+
+	/**
 	 * choose the slave node with least load
+	 * 
+	 * @return the slave Id to be used
 	 */
 	private int chooseBestSlave() {
 		int slaveId = 0;
@@ -186,8 +209,66 @@ public class MasterNode implements Runnable {
 		}
 		return slaveId;
 	}
-	
-	
-	
-	
+
+	// The functions follow check the availability
+	/**
+	 * Check whether the process with certain PID has been migrated
+	 * successfully.
+	 * 
+	 * @param pid
+	 *            the PID to check
+	 * @return whether the migration is successful.
+	 * @throws InterruptedException
+	 */
+	public boolean checkMigrating(int pid) throws InterruptedException {
+		for (int i = 0; i < RETRY; i++) {
+			if (this.migrating.contains(pid)) {
+				Thread.sleep(SLEEP);
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check whether the process with the certain PID has been launched
+	 * successfully.
+	 * 
+	 * @param pid
+	 *            the PID to check
+	 * @return whether the launch is successful
+	 * @throws InterruptedException
+	 */
+	public boolean checkLaunch(int pid) throws InterruptedException {
+		for (int i = 0; i < RETRY; i++) {
+			if (this.launching.contains(pid)) {
+				Thread.sleep(SLEEP);
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Check whether the process with the certain PID has been removed
+	 * successfully.
+	 * 
+	 * @param pid
+	 *            the PID to check
+	 * @return whether the removing is successful
+	 * @throws InterruptedException
+	 */
+	public boolean checkRemoving(int pid) throws InterruptedException {
+		for (int i = 0; i < RETRY; i++) {
+			if (this.launching.contains(pid)) {
+				Thread.sleep(SLEEP);
+			} else {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
