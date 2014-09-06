@@ -3,6 +3,8 @@
  */
 package manager;
 
+import java.util.LinkedList;
+
 /**
  * @author Nicolas_Yu
  *
@@ -15,6 +17,7 @@ public class Message {
 	private String type;
 	private MigratableProcess process;
 	private boolean isSuccess;
+	private LinkedList<Integer> runningPIDs;
 	
 	public Message (int PID, String type, int slaveId) {
 		this.pid = PID;
@@ -28,8 +31,19 @@ public class Message {
 		this.slaveId = slaveId;
 		this.process = process;
 	}
+	 
+	/*
+	 * pulling message constructor
+	 */
+	public Message (String type, LinkedList<Integer> runnningPIDs) {
+		this.type = "pulling";
+		this.runningPIDs = runnningPIDs;
+	}
 
-
+	public Message (String type) {
+		this.type = "pulling";
+	}
+	
 	public int getPid() {
 		return pid;
 	}
@@ -83,6 +97,14 @@ public class Message {
 	 */
 	public void setSuccess(boolean isSuccess) {
 		this.isSuccess = isSuccess;
+	}
+
+	public LinkedList<Integer> getRunningPIDs() {
+		return runningPIDs;
+	}
+
+	public void setRunningPIDs(LinkedList<Integer> runningPIDs) {
+		this.runningPIDs = runningPIDs;
 	}
 
 }

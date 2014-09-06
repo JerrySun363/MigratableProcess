@@ -37,7 +37,7 @@ public class ListenerForSlave extends Thread {
 					continue;
 				}
 				message = (Message)object;
-				masterNode.excuteMasterJob(message); 
+				masterNode.excuteMasterJob(message, slaveId); 
 			}
 		} catch (Exception e) {
 			log("Error handling client# " + slaveId + ": " + e);

@@ -11,6 +11,9 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+
+import com.sun.xml.internal.ws.api.pipe.NextAction;
 
 import manager.Message;
 
@@ -27,12 +30,11 @@ public class SlaveNode {
 	private boolean isRun = false;
 	
 	private String masterHost;
-	private int masterPort;
+	private int masterPort;  
 	
-	private volatile HashSet<Integer> runningPIDs;
+	private HashSet<Integer> runningPIDs;
 	private HashMap<Integer, MigratableProcess> PIDProcessMap;
 	private HashMap<Integer, Thread> PIDThreadMap;
-	
 	
 	public SlaveNode(String mHost, int mPort) {
 		this.masterHost = mHost;
@@ -54,6 +56,9 @@ public class SlaveNode {
 		}
 	}
 	
+	/*
+	 * send message back to MaterNode if needed
+	 */
 	
 	public void sendMsgToMaster(Message message) {
 		try {
@@ -66,7 +71,10 @@ public class SlaveNode {
 		}
 	}
 	
-	// launchSlaveNode masterHost masterPort
+	/*
+	 *  launchSlaveNode masterHost masterPort
+	 */
+	
 	public static void main(String[] argv) {
 		if (argv.length != 3) {
 			System.out.println("Usage: launchSlaveNode masterHost masterPort");
@@ -130,7 +138,7 @@ public class SlaveNode {
 		case "migrate":
 				int migratePID = message.getPid();
 				MigratableProcess migratedProcess = message.getProcess();
-				migratedProcess.suspend();
+				//migratedProcess.suspend();
 				Thread migrateThread = new Thread(migratedProcess); 
 				migrateThread.start();
 				runningPIDs.add(migratePID);
@@ -157,6 +165,15 @@ public class SlaveNode {
 				Message removeMessage = new Message(pid, "removeSuccess", -1);
 				sendMsgToMaster(removeMessage);
 				break;
+		
+		case "pulling":
+			
+				LinkedList<Integer> runningPIDLists = new LinkedList<Integer>();
+				for (Integer a : runningPIDs) {
+					runningPIDLists.add(a);
+				}
+				Message pullingMessage = new Message("pulling", runningPIDLists);
+				sendMsgToMaster(pullingMessage);
 
 		default:
 			break;
