@@ -32,6 +32,12 @@ public class TransactionalFileInputStream extends InputStream implements
 
 	/** FileName **/
 	private String filename;
+	
+
+	public String getFilename() {
+		return filename;
+	}
+
 
 	/**
 	 * Override the read methods to take the change of position into
@@ -168,8 +174,8 @@ public class TransactionalFileInputStream extends InputStream implements
 	public TransactionalFileInputStream(String filename) throws IOException {
 		this.filename = filename;
 		this.position = 0;
-		this.migrated = false;
 		openFileForRead();
+		this.migrated = true;
 	}
 
 	/**
