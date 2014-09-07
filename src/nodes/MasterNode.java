@@ -5,13 +5,13 @@ package nodes;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -128,7 +128,9 @@ public class MasterNode implements Runnable {
 	 *            the slaveId to be sent to.
 	 */
 	public void sendMsgToSlave(Message message, int slaveId) {
-		System.out.println("The slave nodeId is " + slaveId);
+		System.out.println("sendMsgToSlave: The slave nodeId is " + slaveId);
+		System.out.println("sendMsgToSlave: MsgType is " + message.getType());
+		
 		Socket slaveSocket = slaveSocketMap.get(slaveId);
 		try {
 			if (socketObjectMap.containsKey(slaveSocket)) {
@@ -197,6 +199,12 @@ public class MasterNode implements Runnable {
 		case "migrate":
 			int migratePID = message.getPid();
 			MigratableProcess migratedProcess = message.getProcess();
+			System.out.println("Before Migrate:");
+			System.out.println("slaveID\tLoad");
+			for(Entry<Integer, Integer>  entry: this.slaveLoadMap.entrySet()){
+				System.out.println(entry.getKey()+"\t"+entry.getValue());
+			}
+			
 			int slaveId = chooseBestSlave();
 			Message migrateMessage = new Message(migratePID, "migrate",
 					slaveId, migratedProcess);
