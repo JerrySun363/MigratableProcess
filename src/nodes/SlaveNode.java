@@ -134,7 +134,6 @@ public class SlaveNode {
 		
 		case "suspend&migrate":
 				System.out.println("SlaveNode receive message from masterNode: suspend and migrate process with PID: " +  message.getPid());
-			    System.out.println("suspend&migrate message received");
 			    int suspendPID = message.getPid();
 			    MigratableProcess suspendProcess = PIDProcessMap.get(suspendPID);
 			    suspendProcess.suspend();
