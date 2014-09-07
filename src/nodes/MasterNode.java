@@ -227,7 +227,7 @@ public class MasterNode implements Runnable {
 		// Chen Sun can print any success information if he wants
 		case "launchSuccess":
 			int lPid = message.getPid();
-			this.slaveIds.add(lPid);
+			this.runningPID.add(lPid);
 			this.PIDSlaveMap.put(lPid, fromSlaveId);
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId, 1);

@@ -166,21 +166,7 @@ public class ProcessManager {
 			try {
 				pid = Integer.parseInt(args[1]);
 				masterNode.remove(pid);
-				/*boolean isSuccess = masterNode.checkRemoving(pid);
-				if (isSuccess) {
-					System.out
-							.println("Successfully remove the process with pid "
-									+ pid);
-				} else {
-					System.out.println("Fail to remove the process with pid "
-							+ pid);
-				}
-				return;
-				*/
-			} /*catch (InterruptedException e) {
-				System.out.println("Failing in check removing status");
-				return;
-			} */catch (Exception e) {
+			} catch (Exception e) {
 				System.out.println("We have met an unexpected exception!");
 				return;
 			}
