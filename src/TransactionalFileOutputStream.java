@@ -48,6 +48,7 @@ public class TransactionalFileOutputStream extends OutputStream implements
 		this.filename = filename;
 		this.append = b;
 		openFileForWrite();
+		this.migrated = true;
 	}
 
 	
