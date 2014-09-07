@@ -306,7 +306,8 @@ public class MasterNode implements Runnable {
 	 * @throws InterruptedException
 	 */
 	public boolean checkMigrating(int pid) throws InterruptedException {
-		for (int i = 0; i < RETRY; i++) {
+		for (int i = 0; i < RETRY*3; i++) {
+			System.out.println("Check Migrating: RETRY" + i);
 			if (this.migrating.contains(pid)) {
 				Thread.sleep(SLEEP);
 			} else {
