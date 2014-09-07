@@ -46,8 +46,8 @@ public class TransactionalFileOutputStream extends OutputStream implements
 	public TransactionalFileOutputStream(String filename, boolean b)
 			throws FileNotFoundException {
 		this.filename = filename;
+		this.append = b;
 		openFileForWrite();
-		this.migrated = true;
 	}
 
 	
@@ -112,7 +112,7 @@ public class TransactionalFileOutputStream extends OutputStream implements
 	 */
 	public void setMigrated(boolean migrated) {
 		this.migrated = migrated;
-		if (isMigrated()) {
+		if (isMigrated() && this.fileOutputStream != null) {
 			try {
 				this.fileOutputStream.flush();
 				this.fileOutputStream.close();
