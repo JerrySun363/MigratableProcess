@@ -39,16 +39,16 @@ public class Timer implements MigratableProcess{
 			try {
 				Thread.currentThread().sleep(SLEEP);
 			} catch (InterruptedException e) {
-				// Ignore that
+				return;
 			}
 		}
-		suspending = false;
+
 	}
 
 	@Override
 	public void suspend() {
 		this.suspending =true;
-		while(suspending){}
+		//while(suspending){}
 	}
 
 	@Override

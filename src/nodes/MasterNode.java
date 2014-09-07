@@ -80,6 +80,7 @@ public class MasterNode implements Runnable {
 
 	@Override
 	public void run() {
+		System.out.println("MasterNode begins to run");
 		int slaveId = 0;
 		while (isRun) {
 			try {
@@ -104,6 +105,7 @@ public class MasterNode implements Runnable {
 	 * launch a new process for ProcessManager
 	 */
 	public int launchProcess(MigratableProcess process) {
+		System.out.println("MasterNode: launch Process " + process.getClass().getName());
 		int slaveId = chooseBestSlave();
 		Message launchMessage = new Message(PID, "launch", slaveId, process);
 		sendMsgToSlave(launchMessage, slaveId);
@@ -121,7 +123,7 @@ public class MasterNode implements Runnable {
 	public void migrate(int PID) {
 		// suspend the process in the original slaveNode
 		int originalSlaveId = PIDSlaveMap.get(PID);
-		System.out.println("Original slaveid is " + originalSlaveId +" pid is"+ PID);
+		System.out.println("MasterNode: migrate process with PID: " + PID + " from " + originalSlaveId);
 		Message suspendMessage = new Message(PID, "suspend&migrate",
 				originalSlaveId);
 		sendMsgToSlave(suspendMessage, originalSlaveId);
@@ -136,6 +138,7 @@ public class MasterNode implements Runnable {
 	 */
 	public void remove(int PID) {
 		int slaveId = PIDSlaveMap.get(PID);
+		System.out.println("MaterNode: remove process with PID: " + PID + " running on slaveNode " + slaveId);
 		Message removeMessage = new Message(PID, "remove", slaveId);
 		sendMsgToSlave(removeMessage, slaveId);
 		this.removing.add(PID);
@@ -150,7 +153,7 @@ public class MasterNode implements Runnable {
 	 *            the slaveId to be sent to.
 	 */
 	public void sendMsgToSlave(Message message, int slaveId) {
-		System.out.println("The slave nodeId is " + slaveId);
+		System.out.println("MasterNode: sendMsg To Slave " + slaveId + " with messsage type of " + message.getType());
 		Socket slaveSocket = slaveSocketMap.get(slaveId);
 		try {
 			if (socketObjectMap.containsKey(slaveSocket)) {
@@ -174,6 +177,7 @@ public class MasterNode implements Runnable {
 	 * update the information of all the nodes.
 	 */
 	public void pullInformation() {
+		System.out.println("MasterNode: pulling information from slaveNodes");
 		Message pullingMessage = new Message("pulling");
 		for (int slaveId : this.slaveSocketMap.keySet()) {
 			this.sendMsgToSlave(pullingMessage, slaveId);
@@ -229,6 +233,7 @@ public class MasterNode implements Runnable {
 		// Chen Sun can print any success information if he wants
 		case "launchSuccess":
 			int lPid = message.getPid();
+			this.slaveIds.add(lPid);
 			this.PIDSlaveMap.put(lPid, fromSlaveId);
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId, 1);
