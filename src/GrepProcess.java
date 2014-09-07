@@ -57,7 +57,9 @@ public class GrepProcess implements MigratableProcess
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e) {
-					// ignore it
+					out.close();
+					in.close();
+					return;
 				}
 			}
 		} catch (EOFException e) {
@@ -94,8 +96,8 @@ public class GrepProcess implements MigratableProcess
 	 */
 	@Override
 	public void resume() {
-		this.inFile.setMigrated(false);
-		this.outFile.setMigrated(false);
+		//this.inFile.setMigrated(false);
+		//this.outFile.setMigrated(false);
 		suspending = false;
 	}
 

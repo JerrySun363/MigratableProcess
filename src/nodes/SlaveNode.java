@@ -84,6 +84,8 @@ public class SlaveNode {
 			
 			SlaveNode slaveNode = new SlaveNode(masterHost, masterPort);
 			
+			System.out.println("SlaveNode begins to run");
+			
 			while (slaveNode.isRun) {
 				
 				Message message = null;
@@ -101,7 +103,8 @@ public class SlaveNode {
 					e.printStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					// When socket disconnect, we assume that master exits, then we shut down the slaveNode
+					System.exit(0);
 				}	
 			}	
 		}
@@ -114,8 +117,7 @@ public class SlaveNode {
 		switch (message.getType()) {
 		
 		case "launch":
-				System.out.println("SlaveNode receive message from masterNode: lauch process with PID: " +  message.getPid() + " class: "
-						+ message.getClass().getName());
+				System.out.println("SlaveNode receive message from masterNode: lauch process with PID: " +  message.getPid());
 				int launchPID = message.getPid();
 				MigratableProcess newProcess = message.getProcess();
 				Thread newThread = new Thread(newProcess);
@@ -131,8 +133,7 @@ public class SlaveNode {
 				break;
 		
 		case "suspend&migrate":
-				System.out.println("SlaveNode receive message from masterNode: suspend and migrate process with PID: " +  message.getPid() + " class: "
-					+ message.getClass().getName());
+				System.out.println("SlaveNode receive message from masterNode: suspend and migrate process with PID: " +  message.getPid());
 			    System.out.println("suspend&migrate message received");
 			    int suspendPID = message.getPid();
 			    MigratableProcess suspendProcess = PIDProcessMap.get(suspendPID);
@@ -144,8 +145,7 @@ public class SlaveNode {
 			    break;
 				
 		case "migrate":
-				System.out.println("SlaveNode receive message from masterNode: migrate process with PID: " +  message.getPid() + " class: "
-					+ message.getClass().getName());
+				System.out.println("SlaveNode receive message from masterNode: migrate process with PID: " +  message.getPid());
 				int migratePID = message.getPid();
 				MigratableProcess migratedProcess = message.getProcess();
 				migratedProcess.resume();
@@ -165,8 +165,7 @@ public class SlaveNode {
 				break;
 				
 		case "remove":
-				System.out.println("SlaveNode receive message from masterNode: remove process with PID: " +  message.getPid() + " class: "
-					+ message.getClass().getName());
+				System.out.println("SlaveNode receive message from masterNode: remove process with PID: " +  message.getPid());
 			    int pid = message.getPid();
 			    Thread removedThread = PIDThreadMap.get(pid);
 				removedThread.interrupt();
@@ -185,8 +184,6 @@ public class SlaveNode {
 				for (Integer a : this.runningPIDs) {
 					runningPIDLists.add(a);
 				}
-				System.out.println("pulling test");
-				System.out.println(this.runningPIDs.toString());
 				Message pullingMessage = new Message("pulling", runningPIDLists);
 				sendMsgToMaster(pullingMessage);
 				

@@ -41,15 +41,13 @@ public class MasterNode implements Runnable {
 	// record the pulling information of runningPID and corresponding slaveNode
 	private Set<Integer> runningPID;
 	private Map<Integer, Integer> runningPIDSlaveMap;
-	
+
 	private HashMap<Socket, ObjectOutputStream> socketObjectMap;
-	
+
 	private static int RETRY = 5;
 	private static int SLEEP = 1000;
-	
+
 	private int pullingNum = 0;
-	
-	
 
 	public MasterNode() {
 		this(DEFAULT_PORT);
@@ -67,14 +65,10 @@ public class MasterNode implements Runnable {
 		this.slaveSocketMap = new HashMap<Integer, Socket>();
 		this.PIDSlaveMap = new HashMap<Integer, Integer>();
 		this.slaveLoadMap = new HashMap<Integer, Integer>();
-		
+
 		this.runningPID = new TreeSet<Integer>();
 		this.runningPIDSlaveMap = new HashMap<Integer, Integer>();
-		
-		this.launching = new HashSet<Integer>();
-		this.migrating = new HashSet<Integer>();
-		this.removing = new HashSet<Integer>();
-		
+
 		this.socketObjectMap = new HashMap<Socket, ObjectOutputStream>();
 	}
 
@@ -100,12 +94,13 @@ public class MasterNode implements Runnable {
 			// polling information from all the slave nodes
 		}
 	}
-	
+
 	/**
 	 * launch a new process for ProcessManager
 	 */
 	public int launchProcess(MigratableProcess process) {
-		System.out.println("MasterNode: launch Process " + process.getClass().getName());
+		System.out.println("MasterNode: launch Process "
+				+ process.getClass().getName());
 		int slaveId = chooseBestSlave();
 		Message launchMessage = new Message(PID, "launch", slaveId, process);
 		sendMsgToSlave(launchMessage, slaveId);
@@ -123,7 +118,8 @@ public class MasterNode implements Runnable {
 	public void migrate(int PID) {
 		// suspend the process in the original slaveNode
 		int originalSlaveId = PIDSlaveMap.get(PID);
-		System.out.println("MasterNode: migrate process with PID: " + PID + " from " + originalSlaveId);
+		System.out.println("MasterNode: migrate process with PID: " + PID
+				+ " from " + originalSlaveId);
 		Message suspendMessage = new Message(PID, "suspend&migrate",
 				originalSlaveId);
 		sendMsgToSlave(suspendMessage, originalSlaveId);
@@ -138,7 +134,8 @@ public class MasterNode implements Runnable {
 	 */
 	public void remove(int PID) {
 		int slaveId = PIDSlaveMap.get(PID);
-		System.out.println("MaterNode: remove process with PID: " + PID + " running on slaveNode " + slaveId);
+		System.out.println("MaterNode: remove process with PID: " + PID
+				+ " running on slaveNode " + slaveId);
 		Message removeMessage = new Message(PID, "remove", slaveId);
 		sendMsgToSlave(removeMessage, slaveId);
 		this.removing.add(PID);
@@ -153,7 +150,8 @@ public class MasterNode implements Runnable {
 	 *            the slaveId to be sent to.
 	 */
 	public void sendMsgToSlave(Message message, int slaveId) {
-		System.out.println("MasterNode: sendMsg To Slave " + slaveId + " with messsage type of " + message.getType());
+		System.out.println("MasterNode: sendMsg To Slave " + slaveId
+				+ " with messsage type of " + message.getType());
 		Socket slaveSocket = slaveSocketMap.get(slaveId);
 		try {
 			if (socketObjectMap.containsKey(slaveSocket)) {
@@ -166,23 +164,26 @@ public class MasterNode implements Runnable {
 				socketObjectMap.put(slaveSocket, objectOut);
 				objectOut.writeObject(message);
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * update the information of all the nodes.
 	 */
 	public void pullInformation() {
 		System.out.println("MasterNode: pulling information from slaveNodes");
+		// remove the outdated information 
+		this.runningPID.clear();
+		this.runningPIDSlaveMap.clear();
 		Message pullingMessage = new Message("pulling");
 		for (int slaveId : this.slaveSocketMap.keySet()) {
 			this.sendMsgToSlave(pullingMessage, slaveId);
 		}
-		
+
 	}
 
 	/**
@@ -197,7 +198,6 @@ public class MasterNode implements Runnable {
 			}
 		}
 	}
-
 
 	/**
 	 * execute the master job
@@ -215,7 +215,8 @@ public class MasterNode implements Runnable {
 			MigratableProcess migratedProcess = message.getProcess();
 			// update the slaveLoadMap when receive the "migrate" message
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
-				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)-1);
+				this.slaveLoadMap.put(fromSlaveId,
+						slaveLoadMap.get(fromSlaveId) - 1);
 			}
 			int slaveId = chooseBestSlave();
 			Message migrateMessage = new Message(migratePID, "migrate",
@@ -238,10 +239,12 @@ public class MasterNode implements Runnable {
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId, 1);
 			} else {
-				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)+1);
+				this.slaveLoadMap.put(fromSlaveId,
+						slaveLoadMap.get(fromSlaveId) + 1);
 			}
-			System.out.println("Launch process success with pid = " + lPid);
-			
+			System.out.println("MasterNode: Launch process success with pid = "
+					+ lPid);
+
 			this.launching.remove(message.getPid());
 			break;
 
@@ -252,9 +255,11 @@ public class MasterNode implements Runnable {
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId, 1);
 			} else {
-				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)+1);
+				this.slaveLoadMap.put(fromSlaveId,
+						slaveLoadMap.get(fromSlaveId) + 1);
 			}
-			System.out.println("Migrate Process " + mPid + "success!");
+			System.out.println("MasterNode: Migrate Process " + mPid
+					+ "success!");
 			break;
 
 		case "removeSuccess":
@@ -263,11 +268,13 @@ public class MasterNode implements Runnable {
 			runningPIDSlaveMap.remove(rPid);
 			this.removing.remove(message.getPid());
 			if (slaveLoadMap.containsKey(fromSlaveId)) {
-				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)-1);
+				this.slaveLoadMap.put(fromSlaveId,
+						slaveLoadMap.get(fromSlaveId) - 1);
 			}
-			System.out.println("Migrate Process " + rPid + "success!");
+			System.out.println("MasterNode: Migrate Process " + rPid
+					+ "success!");
 			break;
-			
+
 		case "pulling":
 			LinkedList<Integer> runningPIDs = message.getRunningPIDs();
 			for (Integer pid : runningPIDs) {
@@ -288,7 +295,7 @@ public class MasterNode implements Runnable {
 	 * @return the slave Id to be used
 	 */
 	public int chooseBestSlave() {
-		int slaveId = 1;
+		int slaveId = 0;
 		int load = slaveLoadMap.get(slaveId);
 		for (int id : slaveLoadMap.keySet()) {
 			if (slaveLoadMap.get(id) < load) {
@@ -298,72 +305,10 @@ public class MasterNode implements Runnable {
 		return slaveId;
 	}
 
-	// The functions follow check the availability
-	/**
-	 * Check whether the process with certain PID has been migrated
-	 * successfully.
-	 * 
-	 * @param pid
-	 *            the PID to check
-	 * @return whether the migration is successful.
-	 * @throws InterruptedException
-	 */
-	/*public boolean checkMigrating(int pid) throws InterruptedException {
-		for (int i = 0; i < RETRY; i++) {
-			if (this.migrating.contains(pid)) {
-				Thread.sleep(SLEEP);
-			} else {
-				return true;
-			}
-		}
-		return false;
-	}*/
-
-	/**
-	 * Check whether the process with the certain PID has been launched
-	 * successfully.
-	 * 
-	 * @param pid
-	 *            the PID to check
-	 * @return whether the launch is successful
-	 * @throws InterruptedException
-	 */
-	/*public boolean checkLaunch(int pid) throws InterruptedException {
-		for (int i = 0; i < RETRY; i++) {
-			if (this.launching.contains(pid)) {
-				Thread.sleep(SLEEP);
-			} else {
-				return true;
-			}
-		}
-		return false;
-	}*/
-
-	/**
-	 * Check whether the process with the certain PID has been removed
-	 * successfully.
-	 * 
-	 * @param pid
-	 *            the PID to check
-	 * @return whether the removing is successful
-	 * @throws InterruptedException
-	 */
-	/*public boolean checkRemoving(int pid) throws InterruptedException {
-		for (int i = 0; i < RETRY; i++) {
-			if (this.launching.contains(pid)) {
-				Thread.sleep(SLEEP);
-			} else {
-				return true;
-			}
-		}
-		return false;
-	}*/
-	
-	
 	/**
 	 * print the status message for all the slave nodes.
 	 */
-	public void printStatusMessages(){
+	public void printStatusMessages() {
 		while (pullingNum < slaveIds.size()) {
 			try {
 				Thread.sleep(1000);
@@ -373,11 +318,15 @@ public class MasterNode implements Runnable {
 			}
 		}
 		pullingNum = 0;
-		System.out.println("PId\tSlaveId");
-		for(int pid : this.runningPID){
-			System.out.println(pid+"\t"+this.PIDSlaveMap.get(pid));
+		if (this.runningPID.size() == 0) {
+			System.out.println("There are currently no running process!");
+		} else {
+			System.out.println("PId\tSlaveId");
+			for (int pid : this.runningPID) {
+				System.out.println(pid + "\t" + this.PIDSlaveMap.get(pid));
+			}
 		}
+
 	}
-	
 
 }
