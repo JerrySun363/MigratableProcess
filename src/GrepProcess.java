@@ -23,7 +23,7 @@ public class GrepProcess implements MigratableProcess
 	private TransactionalFileInputStream  inFile;
 	private TransactionalFileOutputStream outFile;
 	private String query;
-
+	private String[] args;
 	private volatile boolean suspending;
 
 	public GrepProcess(String args[]) throws Exception
@@ -32,7 +32,7 @@ public class GrepProcess implements MigratableProcess
 			System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
 			throw new Exception("Invalid Arguments");
 		}
-		
+		this.args = args;
 		query = args[0];
 		inFile = new TransactionalFileInputStream(args[1]);
 		outFile = new TransactionalFileOutputStream(args[2], false);
@@ -86,8 +86,13 @@ public class GrepProcess implements MigratableProcess
 	 */
 	@Override
 	public String toSring() {
-		String inputInfo = "Input Info: "+ inFile.toString();
-		String outputInfo = "Output Info: " + outFile.toString();
+		String name = this.getClass().getName();
+		String parameter = "parameters:";
+		for(String arg: this.args){
+			parameter +=" "+arg;
+		}
+		String inputInfo = "Input Info: "+ inFile.getFilename();
+		String outputInfo = "Output Info: " + outFile.getFilename();
 		return inputInfo+"\n"+ outputInfo;
 	}
 	
@@ -96,8 +101,6 @@ public class GrepProcess implements MigratableProcess
 	 */
 	@Override
 	public void resume() {
-		//this.inFile.setMigrated(false);
-		//this.outFile.setMigrated(false);
 		suspending = false;
 	}
 

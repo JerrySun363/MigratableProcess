@@ -39,7 +39,7 @@ public class ProcessManager {
 	}
 
 	public static void main(String args[]) {
-		
+
 		if (args.length > 1) {
 			System.out
 					.println("Usage: java ProcessManager or java ProcessManager <portNumer>");
@@ -52,7 +52,7 @@ public class ProcessManager {
 		} else {
 			pm = new ProcessManager();
 		}
-		
+
 		pm.acceptCommand();
 
 	}
@@ -101,18 +101,16 @@ public class ProcessManager {
 				}
 				pid = this.getMasterNode().launchProcess(
 						processConstructor.newInstance((Object) parameters));
-				/*boolean isSuccess = false;
+				/*
+				 * boolean isSuccess = false;
+				 * 
+				 * isSuccess = this.masterNode.checkLaunch(pid);
+				 * 
+				 * if (isSuccess) { System.out
+				 * .println("Successful Running the Process!\n PID is " + pid);
+				 * } else { System.out.println("Fail to create the process!"); }
+				 */
 
-				isSuccess = this.masterNode.checkLaunch(pid);
-
-				if (isSuccess) {
-					System.out
-							.println("Successful Running the Process!\n PID is "
-									+ pid);
-				} else {
-					System.out.println("Fail to create the process!");
-				}*/
-				
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				System.out.println("Fail to create the process!");
@@ -134,7 +132,8 @@ public class ProcessManager {
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 				System.out.println("Fail to create the process!");
-			} 			return;
+			}
+			return;
 		case "migrate":
 			if (args.length != 2) {
 				System.out.println("Please input valid pid");
@@ -142,15 +141,14 @@ public class ProcessManager {
 			try {
 				pid = Integer.parseInt(args[1]);
 				this.masterNode.migrate(pid);
-				/*boolean isSuccess = this.masterNode.checkMigrating(pid);
-				if (isSuccess) {
-					System.out
-							.println("Successfully migrate the process with pid "
-									+ pid);
-				} else {
-					System.out.println("Fail to migrate the process with pid "
-							+ pid);
-				}*/
+				/*
+				 * boolean isSuccess = this.masterNode.checkMigrating(pid); if
+				 * (isSuccess) { System.out
+				 * .println("Successfully migrate the process with pid " + pid);
+				 * } else {
+				 * System.out.println("Fail to migrate the process with pid " +
+				 * pid); }
+				 */
 
 				return;
 			} catch (Exception e) {
@@ -166,21 +164,8 @@ public class ProcessManager {
 			try {
 				pid = Integer.parseInt(args[1]);
 				masterNode.remove(pid);
-				/*boolean isSuccess = masterNode.checkRemoving(pid);
-				if (isSuccess) {
-					System.out
-							.println("Successfully remove the process with pid "
-									+ pid);
-				} else {
-					System.out.println("Fail to remove the process with pid "
-							+ pid);
-				}
-				return;
-				*/
-			} /*catch (InterruptedException e) {
-				System.out.println("Failing in check removing status");
-				return;
-			} */catch (Exception e) {
+
+			} catch (Exception e) {
 				System.out.println("We have met an unexpected exception!");
 				return;
 			}

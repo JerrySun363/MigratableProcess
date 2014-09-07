@@ -20,6 +20,7 @@ public class WordCountProcess implements MigratableProcess {
 	private int wordCount = 0;
 	private boolean suspend = false;
 	private TransactionalFileInputStream input;
+	private String[] args;
 
 	public WordCountProcess(String args[]) throws IOException {
 		if (args == null || args.length != 1) {
@@ -27,6 +28,7 @@ public class WordCountProcess implements MigratableProcess {
 			System.exit(0);
 		}
 		this.input = new TransactionalFileInputStream(args[0]);
+		this.args = args;
 	}
 
 	@Override
@@ -48,7 +50,8 @@ public class WordCountProcess implements MigratableProcess {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// Simply ignore this.
+				scanner.close();
+				return;
 			}
 		}
 
@@ -58,21 +61,24 @@ public class WordCountProcess implements MigratableProcess {
 	public void suspend() {
 		this.input.setMigrated(true);
 		this.suspend = true;
-		while (suspend) {
-		}
 	}
 
 	@Override
 	public void resume() {
-		this.input.setMigrated(false);
+		//this.input.setMigrated(false);
 		this.suspend = false;
 	}
 
 	@Override
 	public String toSring() {
+		String name = this.getClass().getName();
+		String arguments = "Arguments:";
+		for (String arg : args) {
+			arguments += " " + arg;
+		}
 		String stat = String.format("Already read %d lines, got %d words",
 				this.getLineCount(), this.getWordCount());
-		return stat;
+		return name + "\n" + arguments + "\n" + stat;
 	}
 
 	public int getLineCount() {

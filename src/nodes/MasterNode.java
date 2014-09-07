@@ -11,10 +11,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import manager.Message;
 import manager.MigratableProcess;
@@ -228,7 +226,7 @@ public class MasterNode implements Runnable {
 		// Chen Sun can print any success information if he wants
 		case "launchSuccess":
 			int lPid = message.getPid();
-			this.slaveIds.add(lPid);
+			this.runningPID.add(lPid);
 			this.PIDSlaveMap.put(lPid, fromSlaveId);
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId, 1);
@@ -272,7 +270,10 @@ public class MasterNode implements Runnable {
 				runningPID.add(pid);
 				PIDSlaveMap.put(pid, fromSlaveId);
 			}
+
+			
 			pullingNum++;
+			System.out.println(pullingNum);
 			break;
 
 		default:
@@ -301,6 +302,7 @@ public class MasterNode implements Runnable {
 	 */
 	public void printStatusMessages() {
 		while (pullingNum < slaveIds.size()) {
+			System.out.println("Pulling number is "+ pullingNum + " slveIds.size="+slaveIds.size() );
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
