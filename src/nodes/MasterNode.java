@@ -217,7 +217,7 @@ public class MasterNode implements Runnable {
 			break;
 
 		case "suspend":
- 
+  
 			break;
 
 		case "remove":
@@ -324,6 +324,14 @@ public class MasterNode implements Runnable {
 
 	public void setSlaveSocketMap(HashMap<Integer, Socket> slaveSocketMap) {
 		this.slaveSocketMap = slaveSocketMap;
+	}
+
+	public HashSet<Integer> getSlaveIds() {
+		return slaveIds;
+	}
+
+	public void setSlaveIds(HashSet<Integer> slaveIds) {
+		this.slaveIds = slaveIds;
 	}
 
 }
