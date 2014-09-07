@@ -235,6 +235,7 @@ public class MasterNode implements Runnable {
 			} else {
 				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)+1);
 			}
+			System.out.println("Launch process success with pid = " + lPid);
 			
 			this.launching.remove(message.getPid());
 			break;
@@ -248,6 +249,7 @@ public class MasterNode implements Runnable {
 			} else {
 				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)+1);
 			}
+			System.out.println("Migrate Process " + mPid + "success!");
 			break;
 
 		case "removeSuccess":
@@ -255,6 +257,10 @@ public class MasterNode implements Runnable {
 			runningPID.remove(rPid);
 			runningPIDSlaveMap.remove(rPid);
 			this.removing.remove(message.getPid());
+			if (slaveLoadMap.containsKey(fromSlaveId)) {
+				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)-1);
+			}
+			System.out.println("Migrate Process " + rPid + "success!");
 			break;
 			
 		case "pulling":
@@ -297,7 +303,7 @@ public class MasterNode implements Runnable {
 	 * @return whether the migration is successful.
 	 * @throws InterruptedException
 	 */
-	public boolean checkMigrating(int pid) throws InterruptedException {
+	/*public boolean checkMigrating(int pid) throws InterruptedException {
 		for (int i = 0; i < RETRY; i++) {
 			if (this.migrating.contains(pid)) {
 				Thread.sleep(SLEEP);
@@ -306,7 +312,7 @@ public class MasterNode implements Runnable {
 			}
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * Check whether the process with the certain PID has been launched
@@ -317,7 +323,7 @@ public class MasterNode implements Runnable {
 	 * @return whether the launch is successful
 	 * @throws InterruptedException
 	 */
-	public boolean checkLaunch(int pid) throws InterruptedException {
+	/*public boolean checkLaunch(int pid) throws InterruptedException {
 		for (int i = 0; i < RETRY; i++) {
 			if (this.launching.contains(pid)) {
 				Thread.sleep(SLEEP);
@@ -326,7 +332,7 @@ public class MasterNode implements Runnable {
 			}
 		}
 		return false;
-	}
+	}*/
 
 	/**
 	 * Check whether the process with the certain PID has been removed
@@ -337,7 +343,7 @@ public class MasterNode implements Runnable {
 	 * @return whether the removing is successful
 	 * @throws InterruptedException
 	 */
-	public boolean checkRemoving(int pid) throws InterruptedException {
+	/*public boolean checkRemoving(int pid) throws InterruptedException {
 		for (int i = 0; i < RETRY; i++) {
 			if (this.launching.contains(pid)) {
 				Thread.sleep(SLEEP);
@@ -346,7 +352,7 @@ public class MasterNode implements Runnable {
 			}
 		}
 		return false;
-	}
+	}*/
 	
 	
 	/**
