@@ -61,6 +61,7 @@ public class SlaveNode {
 	
 	public void sendMsgToMaster(Message message) {
 		try {
+			System.out.println("SlaveNode SendMsgToMater: " + message.getType() + " ");
 			synchronized (objectOut) {
 				objectOut.writeObject(message);
 			}
@@ -113,6 +114,8 @@ public class SlaveNode {
 		switch (message.getType()) {
 		
 		case "launch":
+				System.out.println("SlaveNode receive message from masterNode: lauch process with PID: " +  message.getPid() + " class: "
+						+ message.getClass().getName());
 				int launchPID = message.getPid();
 				MigratableProcess newProcess = message.getProcess();
 				Thread newThread = new Thread(newProcess);
@@ -128,6 +131,8 @@ public class SlaveNode {
 				break;
 		
 		case "suspend&migrate":
+				System.out.println("SlaveNode receive message from masterNode: suspend and migrate process with PID: " +  message.getPid() + " class: "
+					+ message.getClass().getName());
 			    System.out.println("suspend&migrate message received");
 			    int suspendPID = message.getPid();
 			    MigratableProcess suspendProcess = PIDProcessMap.get(suspendPID);
@@ -139,9 +144,11 @@ public class SlaveNode {
 			    break;
 				
 		case "migrate":
+				System.out.println("SlaveNode receive message from masterNode: migrate process with PID: " +  message.getPid() + " class: "
+					+ message.getClass().getName());
 				int migratePID = message.getPid();
 				MigratableProcess migratedProcess = message.getProcess();
-				//migratedProcess.suspend();
+				migratedProcess.resume();
 				Thread migrateThread = new Thread(migratedProcess); 
 				migrateThread.start();
 				runningPIDs.add(migratePID);
@@ -158,6 +165,8 @@ public class SlaveNode {
 				break;
 				
 		case "remove":
+				System.out.println("SlaveNode receive message from masterNode: remove process with PID: " +  message.getPid() + " class: "
+					+ message.getClass().getName());
 			    int pid = message.getPid();
 			    Thread removedThread = PIDThreadMap.get(pid);
 				removedThread.interrupt();
@@ -171,7 +180,7 @@ public class SlaveNode {
 		
 		case "pulling":
 			
-			    System.out.println("pulling test");
+				System.out.println("SlaveNode receive message from masterNode: pulling information");
 				LinkedList<Integer> runningPIDLists = new LinkedList<Integer>();
 				for (Integer a : this.runningPIDs) {
 					runningPIDLists.add(a);
