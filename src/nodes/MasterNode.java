@@ -33,11 +33,6 @@ public class MasterNode implements Runnable {
 	private HashMap<Integer, Integer> PIDSlaveMap;
 	private HashMap<Integer, Integer> slaveLoadMap;
 
-	// record the intermediate status for different operations
-	private volatile HashSet<Integer> launching;
-	private volatile HashSet<Integer> migrating;
-	private volatile HashSet<Integer> removing;
-
 	// record the pulling information of runningPID and corresponding slaveNode
 	private Set<Integer> runningPID;
 	private Map<Integer, Integer> runningPIDSlaveMap;
@@ -104,7 +99,6 @@ public class MasterNode implements Runnable {
 		int slaveId = chooseBestSlave();
 		Message launchMessage = new Message(PID, "launch", slaveId, process);
 		sendMsgToSlave(launchMessage, slaveId);
-		this.launching.add(PID);
 		PID++;
 		return PID - 1;
 	}
@@ -123,7 +117,6 @@ public class MasterNode implements Runnable {
 		Message suspendMessage = new Message(PID, "suspend&migrate",
 				originalSlaveId);
 		sendMsgToSlave(suspendMessage, originalSlaveId);
-		this.migrating.add(PID);
 	}
 
 	/**
@@ -138,7 +131,6 @@ public class MasterNode implements Runnable {
 				+ " running on slaveNode " + slaveId);
 		Message removeMessage = new Message(PID, "remove", slaveId);
 		sendMsgToSlave(removeMessage, slaveId);
-		this.removing.add(PID);
 	}
 
 	/**
@@ -225,7 +217,7 @@ public class MasterNode implements Runnable {
 			break;
 
 		case "suspend":
-
+ 
 			break;
 
 		case "remove":
@@ -244,13 +236,10 @@ public class MasterNode implements Runnable {
 			}
 			System.out.println("MasterNode: Launch process success with pid = "
 					+ lPid);
-
-			this.launching.remove(message.getPid());
 			break;
 
 		case "migrateSuccess":
 			int mPid = message.getPid();
-			this.migrating.remove(message.getPid());
 			this.PIDSlaveMap.put(mPid, fromSlaveId);
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId, 1);
@@ -266,7 +255,7 @@ public class MasterNode implements Runnable {
 			int rPid = message.getPid();
 			runningPID.remove(rPid);
 			runningPIDSlaveMap.remove(rPid);
-			this.removing.remove(message.getPid());
+
 			if (slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId,
 						slaveLoadMap.get(fromSlaveId) - 1);
@@ -327,6 +316,14 @@ public class MasterNode implements Runnable {
 			}
 		}
 
+	}
+
+	public HashMap<Integer, Socket> getSlaveSocketMap() {
+		return slaveSocketMap;
+	}
+
+	public void setSlaveSocketMap(HashMap<Integer, Socket> slaveSocketMap) {
+		this.slaveSocketMap = slaveSocketMap;
 	}
 
 }
