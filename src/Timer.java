@@ -34,7 +34,7 @@ public class Timer implements MigratableProcess{
 	@Override
 	public void run() {
 		while (!this.suspending) {
-			//System.out.println(count);
+			System.out.println(count);
 			count++;
 			try {
 				Thread.currentThread().sleep(SLEEP);

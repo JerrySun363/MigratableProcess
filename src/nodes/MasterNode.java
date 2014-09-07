@@ -78,6 +78,28 @@ public class MasterNode implements Runnable {
 		this.socketObjectMap = new HashMap<Socket, ObjectOutputStream>();
 	}
 
+	@Override
+	public void run() {
+		int slaveId = 0;
+		while (isRun) {
+			try {
+				Socket socket = serverSocket.accept();
+				this.slaveIds.add(slaveId);
+
+				new ListenerForSlave(socket, slaveId, this).start();
+				this.socketList.add(socket);
+				this.slaveSocketMap.put(slaveId, socket);
+				this.slaveLoadMap.put(slaveId, 0);
+				slaveId++;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// polling information from all the slave nodes
+		}
+	}
+	
 	/**
 	 * launch a new process for ProcessManager
 	 */
@@ -149,6 +171,17 @@ public class MasterNode implements Runnable {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * update the information of all the nodes.
+	 */
+	public void pullInformation() {
+		Message pullingMessage = new Message("pulling");
+		for (int slaveId : this.slaveSocketMap.keySet()) {
+			this.sendMsgToSlave(pullingMessage, slaveId);
+		}
+		
+	}
 
 	/**
 	 * disconnect the sockets to all the slaveNodes
@@ -163,27 +196,6 @@ public class MasterNode implements Runnable {
 		}
 	}
 
-	@Override
-	public void run() {
-		int slaveId = 0;
-		while (isRun) {
-			try {
-				Socket socket = serverSocket.accept();
-				this.slaveIds.add(slaveId);
-
-				new ListenerForSlave(socket, slaveId, this).start();
-				this.socketList.add(socket);
-				this.slaveSocketMap.put(slaveId, socket);
-				this.slaveLoadMap.put(slaveId, 0);
-				slaveId++;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			// polling information from all the slave nodes
-		}
-	}
 
 	/**
 	 * execute the master job
@@ -199,12 +211,16 @@ public class MasterNode implements Runnable {
 		case "migrate":
 			int migratePID = message.getPid();
 			MigratableProcess migratedProcess = message.getProcess();
+
 			System.out.println("Before Migrate:");
 			System.out.println("slaveID\tLoad");
 			for(Entry<Integer, Integer>  entry: this.slaveLoadMap.entrySet()){
 				System.out.println(entry.getKey()+"\t"+entry.getValue());
 			}
-			
+			// update the slaveLoadMap when receive the "migrate" message
+			if (!slaveLoadMap.containsKey(fromSlaveId)) {
+				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)-1);
+			}
 			int slaveId = chooseBestSlave();
 			Message migrateMessage = new Message(migratePID, "migrate",
 					slaveId, migratedProcess);
@@ -222,6 +238,12 @@ public class MasterNode implements Runnable {
 		case "launchSuccess":
 			int lPid = message.getPid();
 			this.PIDSlaveMap.put(lPid, fromSlaveId);
+			if (!slaveLoadMap.containsKey(fromSlaveId)) {
+				this.slaveLoadMap.put(fromSlaveId, 1);
+			} else {
+				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)+1);
+			}
+			
 			this.launching.remove(message.getPid());
 			break;
 
@@ -229,6 +251,11 @@ public class MasterNode implements Runnable {
 			int mPid = message.getPid();
 			this.migrating.remove(message.getPid());
 			this.PIDSlaveMap.put(mPid, fromSlaveId);
+			if (!slaveLoadMap.containsKey(fromSlaveId)) {
+				this.slaveLoadMap.put(fromSlaveId, 1);
+			} else {
+				this.slaveLoadMap.put(fromSlaveId, slaveLoadMap.get(fromSlaveId)+1);
+			}
 			break;
 
 		case "removeSuccess":
@@ -328,17 +355,7 @@ public class MasterNode implements Runnable {
 		}
 		return false;
 	}
-	 
-	/**
-	 * update the information of all the nodes.
-	 */
-	public void pullInformation() {
-		Message pullingMessage = new Message("pulling");
-		for (int slaveId : this.slaveSocketMap.keySet()) {
-			this.sendMsgToSlave(pullingMessage, slaveId);
-		}
-		
-	}
+	
 	
 	/**
 	 * print the status message for all the slave nodes.
