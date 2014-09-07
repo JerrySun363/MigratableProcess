@@ -43,6 +43,7 @@ public class ListenerForSlave extends Thread {
 			log("Error handling client# " + slaveId + ": " + e);
 			// update socket map when socket is closed 
 			masterNode.getSlaveSocketMap().remove(slaveId);
+			masterNode.getSlaveIds().remove(slaveId);
 		} finally {
 			try {
 				socket.close();
