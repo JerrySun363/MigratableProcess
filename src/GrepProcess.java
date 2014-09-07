@@ -39,7 +39,7 @@ public class GrepProcess implements MigratableProcess
 	}
 
 	public void run()
-	{
+	{	
 		PrintStream out = new PrintStream(outFile);
 		DataInputStream in = new DataInputStream(inFile);
 
@@ -55,7 +55,7 @@ public class GrepProcess implements MigratableProcess
 				
 				// Make grep take longer so that we don't require extremely large files for interesting results
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					out.close();
 					in.close();
