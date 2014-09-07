@@ -46,7 +46,7 @@ public class GrepProcess implements MigratableProcess
 		try {
 			while (!suspending) {
 				String line = in.readLine();
-
+				System.out.println(line);
 				if (line == null) break;
 				
 				if (line.contains(query)) {
@@ -55,7 +55,7 @@ public class GrepProcess implements MigratableProcess
 				
 				// Make grep take longer so that we don't require extremely large files for interesting results
 				try {
-					Thread.sleep(100);
+					Thread.sleep(10000);
 				} catch (InterruptedException e) {
 					// ignore it
 				}

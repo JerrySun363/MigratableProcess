@@ -5,6 +5,7 @@ package nodes;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -41,10 +42,14 @@ public class MasterNode implements Runnable {
 	private Set<Integer> runningPID;
 	private Map<Integer, Integer> runningPIDSlaveMap;
 	
+	private HashMap<Socket, ObjectOutputStream> socketObjectMap;
+	
 	private static int RETRY = 5;
 	private static int SLEEP = 1000;
 	
 	private int pullingNum = 0;
+	
+	
 
 	public MasterNode() {
 		this(DEFAULT_PORT);
@@ -70,6 +75,7 @@ public class MasterNode implements Runnable {
 		this.migrating = new HashSet<Integer>();
 		this.removing = new HashSet<Integer>();
 		
+		this.socketObjectMap = new HashMap<Socket, ObjectOutputStream>();
 	}
 
 	/**
@@ -125,9 +131,17 @@ public class MasterNode implements Runnable {
 		System.out.println("The slave nodeId is " + slaveId);
 		Socket slaveSocket = slaveSocketMap.get(slaveId);
 		try {
-			ObjectOutputStream objectOut = new ObjectOutputStream(
-					slaveSocket.getOutputStream());
-			objectOut.writeObject(message);
+			if (socketObjectMap.containsKey(slaveSocket)) {
+				ObjectOutputStream objectOut = socketObjectMap.get(slaveSocket);
+
+				objectOut.writeObject(message);
+			} else {
+				ObjectOutputStream objectOut = new ObjectOutputStream(
+						slaveSocket.getOutputStream());
+				socketObjectMap.put(slaveSocket, objectOut);
+				objectOut.writeObject(message);
+			}
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

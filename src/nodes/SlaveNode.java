@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import com.sun.xml.internal.ws.api.pipe.NextAction;
 
 import manager.Message;
 
@@ -98,13 +97,11 @@ public class SlaveNode {
 					slaveNode.excuteJob(message);
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
-					//e.printStackTrace();
+					e.printStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					//e.printStackTrace();
+					e.printStackTrace();
 				}	
-				
-				
 			}	
 		}
 	}
@@ -119,6 +116,7 @@ public class SlaveNode {
 				int launchPID = message.getPid();
 				MigratableProcess newProcess = message.getProcess();
 				Thread newThread = new Thread(newProcess);
+				newThread.start();
 				
 				runningPIDs.add(launchPID);
 				PIDProcessMap.put(launchPID, newProcess);
@@ -126,13 +124,13 @@ public class SlaveNode {
 				
 				Message launchSuccessMessage = new Message(launchPID, "launchSuccess", -1);
 				sendMsgToMaster(launchSuccessMessage);
-				newThread.start();
 				
 				break;
 		
 		case "suspend&migrate":
+			    System.out.println("suspend&migrate message received");
 			    int suspendPID = message.getPid();
-			    MigratableProcess suspendProcess = message.getProcess();
+			    MigratableProcess suspendProcess = PIDProcessMap.get(suspendPID);
 			    suspendProcess.suspend();
 			    runningPIDs.remove(suspendPID);
 			    Message migrateMessage = new Message(suspendPID, "migrate", 0, suspendProcess);
