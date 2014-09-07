@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import manager.Message;
 import manager.MigratableProcess;
@@ -42,7 +43,7 @@ public class MasterNode implements Runnable {
 	private static int RETRY = 5;
 	private static int SLEEP = 1000;
 
-	private int pullingNum = 0;
+	private static volatile int pullingNum = 0;
 
 	public MasterNode() {
 		this(DEFAULT_PORT);

@@ -51,6 +51,9 @@ public class TransactionalFileOutputStream extends OutputStream implements
 		this.migrated = true;
 	}
 
+
+	
+	
 	
 	/**
 	 * The following methods are overriden methods of wrapper methods for fileOutputStream.
