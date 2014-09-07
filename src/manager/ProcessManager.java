@@ -101,7 +101,7 @@ public class ProcessManager {
 				}
 				pid = this.getMasterNode().launchProcess(
 						processConstructor.newInstance((Object) parameters));
-				boolean isSuccess = false;
+				/*boolean isSuccess = false;
 
 				isSuccess = this.masterNode.checkLaunch(pid);
 
@@ -111,7 +111,8 @@ public class ProcessManager {
 									+ pid);
 				} else {
 					System.out.println("Fail to create the process!");
-				}
+				}*/
+				
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 				System.out.println("Fail to create the process!");
@@ -133,11 +134,7 @@ public class ProcessManager {
 			} catch (InvocationTargetException e) {
 				e.printStackTrace();
 				System.out.println("Fail to create the process!");
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-				System.out.println("Fail to check launching status!");
-			}
-			return;
+			} 			return;
 		case "migrate":
 			if (args.length != 2) {
 				System.out.println("Please input valid pid");
@@ -145,7 +142,7 @@ public class ProcessManager {
 			try {
 				pid = Integer.parseInt(args[1]);
 				this.masterNode.migrate(pid);
-				boolean isSuccess = this.masterNode.checkMigrating(pid);
+				/*boolean isSuccess = this.masterNode.checkMigrating(pid);
 				if (isSuccess) {
 					System.out
 							.println("Successfully migrate the process with pid "
@@ -153,11 +150,8 @@ public class ProcessManager {
 				} else {
 					System.out.println("Fail to migrate the process with pid "
 							+ pid);
-				}
+				}*/
 
-				return;
-			} catch (InterruptedException e) {
-				System.out.println("Failing in check migration status");
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -172,7 +166,7 @@ public class ProcessManager {
 			try {
 				pid = Integer.parseInt(args[1]);
 				masterNode.remove(pid);
-				boolean isSuccess = masterNode.checkRemoving(pid);
+				/*boolean isSuccess = masterNode.checkRemoving(pid);
 				if (isSuccess) {
 					System.out
 							.println("Successfully remove the process with pid "
@@ -182,10 +176,11 @@ public class ProcessManager {
 							+ pid);
 				}
 				return;
-			} catch (InterruptedException e) {
+				*/
+			} /*catch (InterruptedException e) {
 				System.out.println("Failing in check removing status");
 				return;
-			} catch (Exception e) {
+			} */catch (Exception e) {
 				System.out.println("We have met an unexpected exception!");
 				return;
 			}
