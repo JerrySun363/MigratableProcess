@@ -1,4 +1,5 @@
 package utility;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -42,7 +43,8 @@ public class TransactionalFileOutputStream extends OutputStream implements
 	 * 
 	 * @param filename
 	 *            . The String representation of the file name.
-	 * @param b value indicating whether to append or not.
+	 * @param b
+	 *            value indicating whether to append or not.
 	 * @throws FileNotFoundException
 	 */
 	public TransactionalFileOutputStream(String filename, boolean b)
@@ -136,6 +138,7 @@ public class TransactionalFileOutputStream extends OutputStream implements
 	 */
 	private void openFileForWrite() throws FileNotFoundException {
 		this.fileOutputStream = new FileOutputStream(this.filename, this.append);
+		this.append = true;
 		this.setMigrated(false);
 	}
 

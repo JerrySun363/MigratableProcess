@@ -42,7 +42,7 @@ public class ProcessManager {
 
 		if (args.length > 1) {
 			System.out
-					.println("Usage: java ProcessManager or java ProcessManager <portNumer>");
+					.println("Usage: ProcessManager or ProcessManager <portNumer>");
 			System.exit(0);
 		}
 		ProcessManager pm;
@@ -173,7 +173,7 @@ public class ProcessManager {
 	 */
 	private void printUsageMessage() {
 		System.out.println("Usage:");
-		System.out.println("launch <ProcessName>");
+		System.out.println("launch <ProcessName> <args>");
 		System.out.println("migrate <pid>");
 		System.out.println("remove <pid>");
 		System.out.println("status");
