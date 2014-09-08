@@ -38,10 +38,6 @@ public class MasterNode implements Runnable {
 
 	private HashMap<Socket, ObjectOutputStream> socketObjectMap;
 
-	private static int RETRY = 5;
-	private static int SLEEP = 1000;
-	private static volatile int pullingNum = 0;
-
 	public MasterNode() {
 		
 		this(DEFAULT_PORT);
@@ -279,9 +275,9 @@ public class MasterNode implements Runnable {
 				runningPID.add(pid);
 				PIDSlaveMap.put(pid, fromSlaveId);	
 			}
-			slaveLoadMap.put(fromSlaveId, runningPIDs.size());
-			pullingNum++;
-			System.out.println("Recevied Pulling Message. Now pulling number is "+pullingNum);
+			synchronized(this.slaveLoadMap) {
+				slaveLoadMap.put(fromSlaveId, runningPIDs.size());
+			}
 			break;
 
 		default:
@@ -309,16 +305,11 @@ public class MasterNode implements Runnable {
 	 * print the status message for all the slave nodes.
 	 */
 	public void printStatusMessages() {
-		while (pullingNum < slaveIds.size()) {
-			System.out.println("Pulling number is "+ pullingNum + " slveIds.size="+slaveIds.size() );
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			//ignore this.
 		}
-		pullingNum = 0;
 		if (this.runningPID.size() == 0) {
 			System.out.println("There are currently no running process!");
 		} else {
