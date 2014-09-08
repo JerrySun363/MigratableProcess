@@ -253,7 +253,7 @@ public class MasterNode implements Runnable {
 						slaveLoadMap.get(fromSlaveId) + 1);
 			}
 			System.out.println("MasterNode: Migrate Process " + mPid
-					+ "success!");
+					+ " success!");
 			break;
 
 		case "removeSuccess":
@@ -265,8 +265,8 @@ public class MasterNode implements Runnable {
 				this.slaveLoadMap.put(fromSlaveId,
 						slaveLoadMap.get(fromSlaveId) - 1);
 			}
-			System.out.println("MasterNode: Migrate Process " + rPid
-					+ "success!");
+			System.out.println("MasterNode: Remove Process " + rPid
+					+ " success!");
 			break;
 
 		case "pulling":
@@ -295,6 +295,7 @@ public class MasterNode implements Runnable {
 		int load = slaveLoadMap.get(slaveId);
 		for (int id : slaveLoadMap.keySet()) {
 			if (slaveLoadMap.get(id) < load) {
+				load = slaveLoadMap.get(id);
 				slaveId = id;
 			}
 		}
