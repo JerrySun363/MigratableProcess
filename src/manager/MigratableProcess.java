@@ -16,6 +16,9 @@ public interface MigratableProcess extends Runnable, Serializable{
 	//This method offers an opportunity for the process to quit the previous safe state and be able to run again.
 	public void resume();
 
+	//This method offers an opportunity to terminate the process and notify masterNode to remove running PID
+	public void terminate();
+	
 	//print the class name of the process as well as the original set of arguments with which it was called.
 	public String toSring();
 	//TODO  override 

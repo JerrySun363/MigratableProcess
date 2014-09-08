@@ -39,7 +39,8 @@ public class TransactionalFileOutputStream extends OutputStream implements
 
 	/**
 	 * 
-	 * @param filename. The String representation of the file name.
+	 * @param filename
+	 *            . The String representation of the file name.
 	 * @param boolean value indicating whether to append or not.
 	 * @throws FileNotFoundException
 	 */
@@ -51,17 +52,15 @@ public class TransactionalFileOutputStream extends OutputStream implements
 		this.migrated = true;
 	}
 
-
-	
-	
-	
 	/**
-	 * The following methods are overriden methods of wrapper methods for fileOutputStream.
-	 * There is no need to track the position of current open file.
+	 * The following methods are overriden methods of wrapper methods for
+	 * fileOutputStream. There is no need to track the position of current open
+	 * file.
 	 * 
-	 * However, it does require to check whether it is migrated before each operation is performed.
+	 * However, it does require to check whether it is migrated before each
+	 * operation is performed.
 	 * 
-	 * Also, when it sets to be Migrated, we also need to check file status, 
+	 * Also, when it sets to be Migrated, we also need to check file status,
 	 * flush all the cached write operation and close the file to write.
 	 * 
 	 */
@@ -108,7 +107,7 @@ public class TransactionalFileOutputStream extends OutputStream implements
 	public boolean isMigrated() {
 		return migrated;
 	}
-	
+
 	/**
 	 * SET Migrated, and also tries to close the file if it is true.
 	 * 
@@ -127,14 +126,19 @@ public class TransactionalFileOutputStream extends OutputStream implements
 		}
 
 	}
+
 	/**
-	 * This method tries to create an open file for write operation.
-	 * When a new file is created, set the Migrated to be false.
+	 * This method tries to create an open file for write operation. When a new
+	 * file is created, set the Migrated to be false.
 	 * 
 	 * @throws FileNotFoundException
 	 */
 	private void openFileForWrite() throws FileNotFoundException {
 		this.fileOutputStream = new FileOutputStream(this.filename, this.append);
 		this.setMigrated(false);
+	}
+
+	public String getFilename() {
+		return this.filename;
 	}
 }

@@ -5,7 +5,6 @@ package nodes;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import manager.Message;
 import manager.MigratableProcess;
@@ -42,10 +40,10 @@ public class MasterNode implements Runnable {
 
 	private static int RETRY = 5;
 	private static int SLEEP = 1000;
-
 	private static volatile int pullingNum = 0;
 
 	public MasterNode() {
+		
 		this(DEFAULT_PORT);
 	}
 
@@ -112,6 +110,10 @@ public class MasterNode implements Runnable {
 	 */
 	public void migrate(int PID) {
 		// suspend the process in the original slaveNode
+		if(!PIDSlaveMap.containsKey(PID)){
+			System.out.println("MasterNode: Migrate: PID "+ PID+" does not exist!");
+			return;
+		}
 		int originalSlaveId = PIDSlaveMap.get(PID);
 		System.out.println("MasterNode: migrate process with PID: " + PID
 				+ " from " + originalSlaveId);
@@ -127,6 +129,10 @@ public class MasterNode implements Runnable {
 	 *            the PID to be removed
 	 */
 	public void remove(int PID) {
+		if(!PIDSlaveMap.containsKey(PID)){
+			System.out.println("MasterNode: Remove: PID "+ PID+" does not exist!");
+			return;
+		}
 		int slaveId = PIDSlaveMap.get(PID);
 		System.out.println("MaterNode: remove process with PID: " + PID
 				+ " running on slaveNode " + slaveId);
@@ -169,7 +175,7 @@ public class MasterNode implements Runnable {
 	 */
 	public void pullInformation() {
 		System.out.println("MasterNode: pulling information from slaveNodes");
-		// remove the outdated information 
+		// remove the outdated information
 		this.runningPID.clear();
 		this.runningPIDSlaveMap.clear();
 		Message pullingMessage = new Message("pulling");
@@ -206,6 +212,7 @@ public class MasterNode implements Runnable {
 		case "migrate":
 			int migratePID = message.getPid();
 			MigratableProcess migratedProcess = message.getProcess();
+
 			// update the slaveLoadMap when receive the "migrate" message
 			if (!slaveLoadMap.containsKey(fromSlaveId)) {
 				this.slaveLoadMap.put(fromSlaveId,
@@ -271,7 +278,10 @@ public class MasterNode implements Runnable {
 				runningPID.add(pid);
 				PIDSlaveMap.put(pid, fromSlaveId);
 			}
+
+			
 			pullingNum++;
+			System.out.println(pullingNum);
 			break;
 
 		default:
@@ -300,6 +310,7 @@ public class MasterNode implements Runnable {
 	 */
 	public void printStatusMessages() {
 		while (pullingNum < slaveIds.size()) {
+			System.out.println("Pulling number is "+ pullingNum + " slveIds.size="+slaveIds.size() );
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

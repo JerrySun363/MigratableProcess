@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-
 import manager.Message;
 
 /**
@@ -21,6 +20,8 @@ import manager.Message;
  *
  */
 public class SlaveNode {
+	
+	private static final SlaveNode INSTANCE = new SlaveNode("128.237.164.9", 15640);
 	
 	private Socket socket;
 	private ObjectInputStream objectIn;
@@ -34,8 +35,13 @@ public class SlaveNode {
 	private HashSet<Integer> runningPIDs;
 	private HashMap<Integer, MigratableProcess> PIDProcessMap;
 	private HashMap<Integer, Thread> PIDThreadMap;
+	private HashMap<Thread, Integer> ThreadPIDMap;
 	
 	public SlaveNode(String mHost, int mPort) {
+		if (INSTANCE != null) {
+			throw new IllegalStateException("Already instantiated");
+		}
+		
 		this.masterHost = mHost;
 		this.masterPort = mPort;	
 		
@@ -44,6 +50,7 @@ public class SlaveNode {
 		this.runningPIDs = new HashSet<Integer>();
 		this.PIDProcessMap = new HashMap<Integer, MigratableProcess>();
 		this.PIDThreadMap = new HashMap<Integer, Thread>();
+		this.ThreadPIDMap = new HashMap<Thread, Integer>();
 		
 		try {
 			this.socket = new Socket(masterHost, masterPort);
@@ -53,6 +60,11 @@ public class SlaveNode {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	
+	public static SlaveNode getInstance() {
+		return INSTANCE;
 	}
 	
 	/*
@@ -82,7 +94,8 @@ public class SlaveNode {
 			String masterHost = argv[1];
 			int masterPort = Integer.valueOf(argv[2]);
 			
-			SlaveNode slaveNode = new SlaveNode(masterHost, masterPort);
+			SlaveNode slaveNode = getInstance();
+			//SlaveNode slaveNode = new SlaveNode(masterHost, masterPort);
 			
 			System.out.println("SlaveNode begins to run");
 			
@@ -126,6 +139,7 @@ public class SlaveNode {
 				runningPIDs.add(launchPID);
 				PIDProcessMap.put(launchPID, newProcess);
 				PIDThreadMap.put(launchPID, newThread);
+				ThreadPIDMap.put(newThread, launchPID);
 				
 				Message launchSuccessMessage = new Message(launchPID, "launchSuccess", -1);
 				sendMsgToMaster(launchSuccessMessage);
@@ -153,6 +167,7 @@ public class SlaveNode {
 				runningPIDs.add(migratePID);
 				PIDProcessMap.put(migratePID, migratedProcess);
 				PIDThreadMap.put(migratePID, migrateThread);
+				ThreadPIDMap.put(migrateThread, migratePID);
 				
 				Message migrateSuccessMessage = new Message(migratePID, "migrateSuccess", -1);
 				sendMsgToMaster(migrateSuccessMessage);
@@ -170,6 +185,7 @@ public class SlaveNode {
 				removedThread.interrupt();
 				runningPIDs.remove(pid);
 				PIDProcessMap.remove(pid);
+				ThreadPIDMap.remove(PIDThreadMap.get(pid));
 				PIDThreadMap.remove(pid);
 				
 				Message removeMessage = new Message(pid, "removeSuccess", -1);
@@ -191,6 +207,46 @@ public class SlaveNode {
 		default:
 			break;
 		}
+	}
+
+
+	public HashSet<Integer> getRunningPIDs() {
+		return runningPIDs;
+	}
+
+
+	public void setRunningPIDs(HashSet<Integer> runningPIDs) {
+		this.runningPIDs = runningPIDs;
+	}
+
+
+	public HashMap<Integer, MigratableProcess> getPIDProcessMap() {
+		return PIDProcessMap;
+	}
+
+
+	public void setPIDProcessMap(HashMap<Integer, MigratableProcess> pIDProcessMap) {
+		PIDProcessMap = pIDProcessMap;
+	}
+
+ 
+	public HashMap<Integer, Thread> getPIDThreadMap() {
+		return PIDThreadMap;
+	}
+
+
+	public void setPIDThreadMap(HashMap<Integer, Thread> pIDThreadMap) {
+		PIDThreadMap = pIDThreadMap;
+	}
+
+
+	public HashMap<Thread, Integer> getThreadPIDMap() {
+		return ThreadPIDMap;
+	}
+
+
+	public void setThreadPIDMap(HashMap<Thread, Integer> threadPIDMap) {
+		ThreadPIDMap = threadPIDMap;
 	}
 	
 }
