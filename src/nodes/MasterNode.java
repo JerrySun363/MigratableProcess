@@ -178,6 +178,7 @@ public class MasterNode implements Runnable {
 		// remove the outdated information
 		this.runningPID.clear();
 		this.runningPIDSlaveMap.clear();
+		this.slaveLoadMap.clear();
 		Message pullingMessage = new Message("pulling");
 		for (int slaveId : this.slaveSocketMap.keySet()) {
 			this.sendMsgToSlave(pullingMessage, slaveId);
@@ -197,7 +198,7 @@ public class MasterNode implements Runnable {
 			}
 		}
 	}
-
+ 
 	/**
 	 * execute the master job
 	 * 
@@ -276,12 +277,11 @@ public class MasterNode implements Runnable {
 			LinkedList<Integer> runningPIDs = message.getRunningPIDs();
 			for (Integer pid : runningPIDs) {
 				runningPID.add(pid);
-				PIDSlaveMap.put(pid, fromSlaveId);
+				PIDSlaveMap.put(pid, fromSlaveId);	
 			}
-
-			
+			slaveLoadMap.put(fromSlaveId, runningPIDs.size());
 			pullingNum++;
-			System.out.println(pullingNum);
+			System.out.println("Recevied Pulling Message. Now pulling number is "+pullingNum);
 			break;
 
 		default:
@@ -344,6 +344,14 @@ public class MasterNode implements Runnable {
 
 	public void setSlaveIds(HashSet<Integer> slaveIds) {
 		this.slaveIds = slaveIds;
+	}
+
+	public HashMap<Integer, Integer> getSlaveLoadMap() {
+		return slaveLoadMap;
+	}
+
+	public void setSlaveLoadMap(HashMap<Integer, Integer> slaveLoadMap) {
+		this.slaveLoadMap = slaveLoadMap;
 	}
 
 }

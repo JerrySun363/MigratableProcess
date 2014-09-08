@@ -114,8 +114,9 @@ public class GrepProcess implements MigratableProcess
 	 */
 	@Override
 	public void terminate() {
+		SlaveNode instance = SlaveNode.getInstance();
 		HashMap<Thread, Integer> referHashMap = SlaveNode.getInstance().getThreadPIDMap();
-		SlaveNode.getInstance().getRunningPIDs().remove(referHashMap.get(Thread.currentThread()));
+		instance.getRunningPIDs().remove(referHashMap.get(Thread.currentThread()));
 		
 	}
 

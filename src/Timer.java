@@ -74,6 +74,7 @@ public class Timer implements MigratableProcess {
 	public void terminate() {
 		HashMap<Thread, Integer> referHashMap = SlaveNode.getInstance().getThreadPIDMap();
 		SlaveNode.getInstance().getRunningPIDs().remove(referHashMap.get(Thread.currentThread()));
+
 		
 	}
 
