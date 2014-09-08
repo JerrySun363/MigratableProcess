@@ -65,6 +65,9 @@ public class ProcessManager {
 		this.masterNode = masterNode;
 	}
 
+	/**
+	 * A while(true) loop keeps takes in command.
+	 */
 	public void acceptCommand() {
 		String input = "";
 		this.printUsageMessage();
@@ -75,13 +78,18 @@ public class ProcessManager {
 
 	}
 
+	/**
+	 * This method handles all the input commands.
+	 * 
+	 * @param input
+	 */
 	@SuppressWarnings("unchecked")
 	private void handleCommand(String input) {
 		if (input == null || input.trim().isEmpty()) {
 			this.printUsageMessage();
 		}
 		int pid;
-		String[] args = input.split("\\W");
+		String[] args = input.split(" ");
 		switch (args[0]) {
 		case "exit":
 			this.getMasterNode().disconnect();
@@ -160,6 +168,9 @@ public class ProcessManager {
 		}
 	}
 
+	/**
+	 * Print usage Message
+	 */
 	private void printUsageMessage() {
 		System.out.println("Usage:");
 		System.out.println("launch <ProcessName>");

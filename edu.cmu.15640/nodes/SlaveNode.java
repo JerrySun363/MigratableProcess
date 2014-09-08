@@ -67,10 +67,9 @@ public class SlaveNode {
 		return INSTANCE;
 	}
 	
-	/*
+	/**
 	 * send message back to MaterNode if needed
 	 */
-	
 	public void sendMsgToMaster(Message message) {
 		try {
 			System.out.println("SlaveNode SendMsgToMater: " + message.getType() + " ");
@@ -123,7 +122,7 @@ public class SlaveNode {
 		}
 	}
 	
-	/*
+	/**
 	 * lunch/migrate/suspend/resume/terminate the specified process
 	 */
 	private void excuteJob(Message message) {

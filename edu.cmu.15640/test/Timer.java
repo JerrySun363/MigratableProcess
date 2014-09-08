@@ -1,4 +1,5 @@
 package test;
+
 import java.util.HashMap;
 
 import nodes.SlaveNode;
@@ -61,22 +62,25 @@ public class Timer implements MigratableProcess {
 
 	}
 
-	
+	/**
+	 * Provide information for current process.
+	 */
 	@Override
 	public String toSring() {
 		return this.getClass().getName() + "\nNo Arguments\nCurrent Number is "
 				+ this.count + ". And is it suspended? " + this.suspending;
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see manager.MigratableProcess#terminate()
 	 */
 	@Override
 	public void terminate() {
-		HashMap<Thread, Integer> referHashMap = SlaveNode.getInstance().getThreadPIDMap();
-		SlaveNode.getInstance().getRunningPIDs().remove(referHashMap.get(Thread.currentThread()));
+		HashMap<Thread, Integer> referHashMap = SlaveNode.getInstance()
+				.getThreadPIDMap();
+		SlaveNode.getInstance().getRunningPIDs()
+				.remove(referHashMap.get(Thread.currentThread()));
 
-		
 	}
 
 }

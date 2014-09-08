@@ -1,4 +1,5 @@
 package test;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -85,6 +86,9 @@ public class WordCountProcess implements MigratableProcess {
 		this.suspend = false;
 	}
 
+	/**
+	 * Provide information for current process.
+	 */
 	@Override
 	public String toSring() {
 		String name = this.getClass().getName();
@@ -105,8 +109,7 @@ public class WordCountProcess implements MigratableProcess {
 		return wordCount;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
 	 * 
 	 * @see manager.MigratableProcess#terminate()
 	 */

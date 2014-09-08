@@ -18,6 +18,9 @@ import manager.Message;
 import manager.MigratableProcess;
 
 /**
+ * Master node is the master that accepts the command from Process Manager and
+ * also responsible for handling communication such as migrating between nodes.
+ * 
  * @author Nicolas_Yu
  * 
  */
@@ -39,7 +42,7 @@ public class MasterNode implements Runnable {
 	private HashMap<Socket, ObjectOutputStream> socketObjectMap;
 
 	public MasterNode() {
-		
+
 		this(DEFAULT_PORT);
 	}
 
@@ -106,8 +109,9 @@ public class MasterNode implements Runnable {
 	 */
 	public void migrate(int PID) {
 		// suspend the process in the original slaveNode
-		if(!PIDSlaveMap.containsKey(PID)){
-			System.out.println("MasterNode: Migrate: PID "+ PID+" does not exist!");
+		if (!PIDSlaveMap.containsKey(PID)) {
+			System.out.println("MasterNode: Migrate: PID " + PID
+					+ " does not exist!");
 			return;
 		}
 		int originalSlaveId = PIDSlaveMap.get(PID);
@@ -125,8 +129,9 @@ public class MasterNode implements Runnable {
 	 *            the PID to be removed
 	 */
 	public void remove(int PID) {
-		if(!PIDSlaveMap.containsKey(PID)){
-			System.out.println("MasterNode: Remove: PID "+ PID+" does not exist!");
+		if (!PIDSlaveMap.containsKey(PID)) {
+			System.out.println("MasterNode: Remove: PID " + PID
+					+ " does not exist!");
 			return;
 		}
 		int slaveId = PIDSlaveMap.get(PID);
@@ -167,7 +172,7 @@ public class MasterNode implements Runnable {
 	}
 
 	/**
-	 * update the information of all the nodes.
+	 * updates the information of all the nodes.
 	 */
 	public void pullInformation() {
 		System.out.println("MasterNode: pulling information from slaveNodes");
@@ -194,9 +199,9 @@ public class MasterNode implements Runnable {
 			}
 		}
 	}
- 
+
 	/**
-	 * execute the master job
+	 * executes the master job
 	 * 
 	 * @param message
 	 */
@@ -222,7 +227,7 @@ public class MasterNode implements Runnable {
 			break;
 
 		case "suspend":
-  
+
 			break;
 
 		case "remove":
@@ -273,9 +278,9 @@ public class MasterNode implements Runnable {
 			LinkedList<Integer> runningPIDs = message.getRunningPIDs();
 			for (Integer pid : runningPIDs) {
 				runningPID.add(pid);
-				PIDSlaveMap.put(pid, fromSlaveId);	
+				PIDSlaveMap.put(pid, fromSlaveId);
 			}
-			synchronized(this.slaveLoadMap) {
+			synchronized (this.slaveLoadMap) {
 				slaveLoadMap.put(fromSlaveId, runningPIDs.size());
 			}
 			break;
@@ -309,7 +314,7 @@ public class MasterNode implements Runnable {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			//ignore this.
+			// ignore this.
 		}
 		if (this.runningPID.size() == 0) {
 			System.out.println("There are currently no running process!");

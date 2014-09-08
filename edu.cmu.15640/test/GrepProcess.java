@@ -2,6 +2,7 @@ package test;
 
 /**
  * GrepProcess is one test case for the Migratable Process. 
+ * It involves Input and Output of transactional file input/output.
  * 
  * @author Nicolas Yu
  * @author Chen Sun
@@ -19,22 +20,18 @@ import utility.TransactionalFileOutputStream;
 import nodes.SlaveNode;
 import manager.MigratableProcess;
 
-public class GrepProcess implements MigratableProcess
-{
-	/**
-	 * 
-	 */
+public class GrepProcess implements MigratableProcess {
 	private static final long serialVersionUID = 8308005755247149213L;
-	private TransactionalFileInputStream  inFile;
+	private TransactionalFileInputStream inFile;
 	private TransactionalFileOutputStream outFile;
 	private String query;
 	private String[] args;
 	private volatile boolean suspending;
 
-	public GrepProcess(String args[]) throws Exception
-	{
+	public GrepProcess(String args[]) throws Exception {
 		if (args.length != 3) {
-			System.out.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
+			System.out
+					.println("usage: GrepProcess <queryString> <inputFile> <outputFile>");
 			throw new Exception("Invalid Arguments");
 		}
 		this.args = args;
@@ -43,8 +40,7 @@ public class GrepProcess implements MigratableProcess
 		outFile = new TransactionalFileOutputStream(args[2], false);
 	}
 
-	public void run()
-	{	
+	public void run() {
 		PrintStream out = new PrintStream(outFile);
 		DataInputStream in = new DataInputStream(inFile);
 
@@ -52,57 +48,60 @@ public class GrepProcess implements MigratableProcess
 			while (!suspending) {
 				String line = in.readLine();
 				System.out.println(line);
-				if (line == null) break;
-				
+				if (line == null)
+					break;
+
 				if (line.contains(query)) {
 					out.println(line);
 				}
-				
-				// Make grep take longer so that we don't require extremely large files for interesting results
+
+				// Make grep take longer so that we don't require extremely
+				// large files for interesting results
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					out.close();
 					in.close();
 					return;
-					
+
 				}
 			}
 		} catch (EOFException e) {
-			//End of File
+			// End of File
 		} catch (IOException e) {
-			System.out.println ("GrepProcess: Error: " + e);
+			System.out.println("GrepProcess: Error: " + e);
 		}
-
 
 		suspending = false;
 		terminate();
 	}
 
-	
-	public void suspend()
-	{
+	/**
+	 * Suspend the current process.
+	 */
+	public void suspend() {
 		this.inFile.setMigrated(true);
 		this.outFile.setMigrated(true);
 		suspending = true;
-		while (suspending);
+		while (suspending)
+			;
 	}
 
 	/**
-	 * This methods tries to give information about the current running program.
+	 * Provide information for current process.
 	 */
 	@Override
 	public String toSring() {
 		String name = this.getClass().getName();
 		String parameter = "parameters:";
-		for(String arg: this.args){
-			parameter +=" "+arg;
+		for (String arg : this.args) {
+			parameter += " " + arg;
 		}
-		String inputInfo = "Input Info: "+ inFile.getFilename();
+		String inputInfo = "Input Info: " + inFile.getFilename();
 		String outputInfo = "Output Info: " + outFile.getFilename();
-		return inputInfo+"\n"+ outputInfo;
+		return inputInfo + "\n" + outputInfo;
 	}
-	
+
 	/**
 	 * This methods tries to resume the program.
 	 */
@@ -111,16 +110,20 @@ public class GrepProcess implements MigratableProcess
 		suspending = false;
 	}
 
-	/** (non-Javadoc)
-	 * @throws InterruptedException 
+	/**
+	 * 
+	 * 
+	 * @throws InterruptedException
 	 * @see manager.MigratableProcess#terminate()
 	 */
 	@Override
 	public void terminate() {
 		SlaveNode instance = SlaveNode.getInstance();
-		HashMap<Thread, Integer> referHashMap = SlaveNode.getInstance().getThreadPIDMap();
-		instance.getRunningPIDs().remove(referHashMap.get(Thread.currentThread()));
-		
+		HashMap<Thread, Integer> referHashMap = SlaveNode.getInstance()
+				.getThreadPIDMap();
+		instance.getRunningPIDs().remove(
+				referHashMap.get(Thread.currentThread()));
+
 	}
 
 }
