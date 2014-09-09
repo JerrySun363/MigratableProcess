@@ -184,6 +184,7 @@ public class MasterNode implements Runnable {
 		this.runningPID.clear();
 		this.runningPIDSlaveMap.clear();
 		this.slaveLoadMap.clear();
+		this.slaveIds.clear();
 		Message pullingMessage = new Message("pulling");
 		for (int slaveId : this.slaveSocketMap.keySet()) {
 			this.sendMsgToSlave(pullingMessage, slaveId);
@@ -284,6 +285,9 @@ public class MasterNode implements Runnable {
 				runningPID.add(pid);
 				PIDSlaveMap.put(pid, fromSlaveId);
 			}
+			synchronized (this.slaveIds) {
+				this.slaveIds.add(fromSlaveId);
+			}
 			synchronized (this.slaveLoadMap) {
 				slaveLoadMap.put(fromSlaveId, runningPIDs.size());
 			}
@@ -320,6 +324,17 @@ public class MasterNode implements Runnable {
 		} catch (InterruptedException e) {
 			// ignore this.
 		}
+		System.out.println("MasterNode: Slave Nodes Information");
+		System.out.println("SlaveId\tLoad");
+		for(int id: this.slaveIds){
+			if(this.slaveLoadMap.containsKey(id)){
+				System.out.println(id+"\t"+this.slaveLoadMap.get(id));
+			}else{
+				System.out.println(id+"\t0");
+			}
+		}
+		System.out.println();
+		System.out.println("MasterNode: Process Information");
 		if (this.runningPID.size() == 0) {
 			System.out.println("There are currently no running process!");
 		} else {

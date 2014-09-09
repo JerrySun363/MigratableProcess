@@ -68,6 +68,14 @@ public class GrepProcess implements MigratableProcess {
 			}
 		} catch (EOFException e) {
 			// End of File
+			try {
+				in.close();
+				out.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				//e1.printStackTrace();
+			}
+
 		} catch (IOException e) {
 			System.out.println("GrepProcess: Error: " + e);
 		}
