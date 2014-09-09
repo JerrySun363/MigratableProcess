@@ -68,9 +68,11 @@ public class SlaveNode {
 		if (INSTANCE != null) {
 			return INSTANCE;
 		} else {
+			System.out.println("DEBUG: I have to create a new one!");
 			INSTANCE = new SlaveNode(SlaveNode.masterHost, SlaveNode.masterPort);
+			return INSTANCE;
 		}
-		return INSTANCE;
+
 	}
 
 	/**
@@ -102,6 +104,8 @@ public class SlaveNode {
 
 			// SlaveNode slaveNode = getInstance();
 			SlaveNode slaveNode = new SlaveNode(masterHost, masterPort);
+			SlaveNode.INSTANCE = slaveNode;
+			System.out.println(SlaveNode.INSTANCE == null);
 			System.out.println("SlaveNode begins to run");
 
 			while (slaveNode.isRun) {
