@@ -95,6 +95,10 @@ public class MasterNode implements Runnable {
 		System.out.println("MasterNode: launch Process "
 				+ process.getClass().getName());
 		int slaveId = chooseBestSlave();
+		if (slaveId == -1) {
+			System.out.println("There is no host currently running!");
+			return -1;
+		}
 		Message launchMessage = new Message(PID, "launch", slaveId, process);
 		sendMsgToSlave(launchMessage, slaveId);
 		PID++;
@@ -296,7 +300,7 @@ public class MasterNode implements Runnable {
 	 * @return the slave Id to be used
 	 */
 	public int chooseBestSlave() {
-		int slaveId = 0;
+		int slaveId = -1;
 		int load = Integer.MAX_VALUE;
 		for (int id : slaveLoadMap.keySet()) {
 			if (slaveLoadMap.get(id) < load) {
