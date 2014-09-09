@@ -297,7 +297,7 @@ public class MasterNode implements Runnable {
 	 */
 	public int chooseBestSlave() {
 		int slaveId = 0;
-		int load = slaveLoadMap.get(slaveId);
+		int load = Integer.MAX_VALUE;
 		for (int id : slaveLoadMap.keySet()) {
 			if (slaveLoadMap.get(id) < load) {
 				load = slaveLoadMap.get(id);

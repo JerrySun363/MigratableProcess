@@ -1,4 +1,5 @@
 package utility;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -33,12 +34,10 @@ public class TransactionalFileInputStream extends InputStream implements
 
 	/** FileName **/
 	private String filename;
-	
 
 	public String getFilename() {
 		return filename;
 	}
-
 
 	/**
 	 * Override the read methods to take the change of position into
